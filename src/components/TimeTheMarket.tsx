@@ -9,11 +9,21 @@ import GameSpeedControls from "./GameSpeedControls";
 import PortfolioDetails from "./PortfolioDetails";
 import TransactionHistory from "./TransactionHistory";
 
+import nineteenseventyfive from "../assets/json/1975.json";
+import nineteeneightyeight from "../assets/json/1975.json";
+import nineteenninetynine from "../assets/json/1975.json";
 import twothousandeight from "../assets/json/2008.json";
 import twentytwelve from "../assets/json/2012.json";
 import twentynineteen from "../assets/json/2019.json";
 
-const years = [twothousandeight, twentytwelve, twentynineteen];
+const years = [
+  nineteenseventyfive,
+  nineteeneightyeight,
+  nineteenninetynine,
+  twothousandeight,
+  twentytwelve,
+  twentynineteen,
+];
 const data = years[Math.floor(Math.random() * years.length)];
 
 const cleanData = data.map((datum) => {
