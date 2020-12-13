@@ -1,7 +1,7 @@
 import { Grid, Button } from "@material-ui/core";
 import React from "react";
 
-interface GameSpeedControls {
+interface GameSpeedControlsProps {
   gameSpeed: number;
   setGameSpeed: (newSpeed: number) => void;
 }
@@ -9,7 +9,7 @@ interface GameSpeedControls {
 const GameSpeedControls = ({
   gameSpeed,
   setGameSpeed,
-}: GameSpeedControls): JSX.Element => {
+}: GameSpeedControlsProps): JSX.Element => {
   return (
     <Grid item container justify="flex-start">
       <Grid item>
