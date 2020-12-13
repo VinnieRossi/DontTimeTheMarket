@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import LineGraph from "./LineGraph";
+import "tailwindcss/tailwind.css";
 
 import twothousandeight from "../assets/2008.json";
 import twentytwelve from "../assets/2012.json";
@@ -11,7 +12,9 @@ const Landing = (): JSX.Element => {
   const [selectedYear, setSelectedYear] = useState(twentytwelve);
   return (
     <>
-      <Typography variant="h4">Don't time the market!</Typography>
+      <Typography variant="h4" className="text-red-500">
+        Don't time the market!
+      </Typography>
       <Button
         variant="contained"
         color="default"
