@@ -1,13 +1,16 @@
 import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
-import Landing from "./components/Landing";
+import Intro from "./components/Intro";
+import TimeTheMarket from "./components/TimeTheMarket";
+import "tailwindcss/tailwind.css";
 
 const App = (): JSX.Element => {
   return (
     <>
       <Router>
-        <main>
+        <main className="">
           <Switch>
-            <Route path="/" component={Landing} />
+            <Route path="/play" component={TimeTheMarket} />
+            <Route path="/" component={Intro} />
           </Switch>
         </main>
       </Router>
