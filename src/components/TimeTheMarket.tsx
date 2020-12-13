@@ -13,14 +13,14 @@ import twothousandeight from "../assets/json/2008.json";
 import twentytwelve from "../assets/json/2012.json";
 import twentynineteen from "../assets/json/2019.json";
 
+const years = [twothousandeight, twentytwelve, twentynineteen];
+const data = years[Math.floor(Math.random() * years.length)];
+
+const cleanData = data.map((datum) => {
+  return [new Date(datum.date).getTime(), parseFloat(datum.value.toFixed(2))];
+});
+
 const TimeTheMarket = () => {
-  const years = [twothousandeight, twentytwelve, twentynineteen];
-  const data = years[Math.floor(Math.random() * years.length)];
-
-  const cleanData = data.map((datum) => {
-    return [new Date(datum.date).getTime(), parseFloat(datum.value.toFixed(2))];
-  });
-
   const startingBalance = 1000000;
   const [transactions, setTransactions] = useState<any>([]);
 
