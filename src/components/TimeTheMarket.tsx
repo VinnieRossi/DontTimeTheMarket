@@ -119,8 +119,6 @@ const TimeTheMarket = () => {
   );
 
   const purchaseShares = () => {
-    // const sharePrice = cleanData[daysPassed][1];
-
     if (sharePrice > cash) {
       return;
     }
@@ -142,7 +140,7 @@ const TimeTheMarket = () => {
 
     setShares(numberOfPurchasedShares);
     setCash(newBalance);
-    setTransactions([...transactions, transaction]);
+    setTransactions([transaction, ...transactions]);
   };
 
   const sellShares = () => {
@@ -150,7 +148,6 @@ const TimeTheMarket = () => {
       return;
     }
 
-    // const sharePrice = cleanData[daysPassed][1];
     const shareSellAmount = parseFloat((sharePrice * shares).toFixed(2));
     const newBalance = parseFloat((cash + shareSellAmount).toFixed(2));
 
@@ -164,7 +161,7 @@ const TimeTheMarket = () => {
 
     setShares(0);
     setCash(newBalance);
-    setTransactions([...transactions, transaction]);
+    setTransactions([transaction, ...transactions]);
   };
 
   return (
