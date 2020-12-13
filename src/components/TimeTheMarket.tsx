@@ -237,10 +237,12 @@ const TimeTheMarket = () => {
               />
             </div>
           </div>
-          <TransactionHistory
-            startingBalance={startingBalance}
-            transactions={transactions}
-          />
+          <div className="container pt-8">
+            <TransactionHistory
+              startingBalance={startingBalance}
+              transactions={transactions}
+            />
+          </div>
         </div>
       </div>
 
