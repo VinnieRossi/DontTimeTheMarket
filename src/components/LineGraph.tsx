@@ -60,6 +60,7 @@ const LineGraph = ({ data }: LineGraphProps) => {
 
   useEffect(() => {
     calculateGhostPortfolio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -70,6 +71,7 @@ const LineGraph = ({ data }: LineGraphProps) => {
 
     setPortfolioValue(portfolioValue);
     setGhostPortfolioValue(ghostPortfolioValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sharePrice]);
 
   useInterval(() => {
