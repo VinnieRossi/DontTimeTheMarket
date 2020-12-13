@@ -46,6 +46,7 @@ const TimeTheMarket = () => {
   const [isPaused, setIsPaused] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameSpeed, setGameSpeed] = useState(3);
+  const [purchasedSharePrice, setPurchasedSharePrice] = useState(0);
 
   const [sharePrice, setSharePrice] = useState(cleanData[daysPassed][1]);
   const [inputData, setInputData] = useState([
@@ -138,6 +139,7 @@ const TimeTheMarket = () => {
       transactionType: "bought",
     };
 
+    setPurchasedSharePrice(sharePrice);
     setShares(numberOfPurchasedShares);
     setCash(newBalance);
     setTransactions([transaction, ...transactions]);
@@ -159,6 +161,7 @@ const TimeTheMarket = () => {
       transactionType: "sold",
     };
 
+    setPurchasedSharePrice(0);
     setShares(0);
     setCash(newBalance);
     setTransactions([transaction, ...transactions]);
@@ -208,16 +211,35 @@ const TimeTheMarket = () => {
               />
             </div>
 
-            <h2 className="text-3xl font-semibold pt-4 pb-4">
-              <NumberFormat
-                value={sharePrice}
-                decimalScale={2}
-                fixedDecimalScale
-                displayType={"text"}
-                thousandSeparator={true}
-                prefix={"$"}
-              />
-            </h2>
+            <div className="pt-4 pb-4">
+              <span className="text-3xl font-semibold pr-4">
+                <NumberFormat
+                  value={sharePrice}
+                  style={{
+                    color: sharePrice >= purchasedSharePrice ? "green" : "red",
+                  }}
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType={"text"}
+                  thousandSeparator={true}
+                  prefix={"$"}
+                />
+              </span>
+              <span className="">
+                <NumberFormat
+                  value={(sharePrice - purchasedSharePrice) * shares}
+                  style={{
+                    color: sharePrice >= purchasedSharePrice ? "green" : "red",
+                  }}
+                  allowNegative
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType={"text"}
+                  thousandSeparator={true}
+                  prefix={"$"}
+                />
+              </span>
+            </div>
 
             <div className="container space-y-4">
               <PortfolioDetails
