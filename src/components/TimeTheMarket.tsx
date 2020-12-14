@@ -251,23 +251,23 @@ const TimeTheMarket = () => {
       </div>
       <div className="container grid mx-auto grid-cols-2 space-x-4 pb-8">
         <PortfolioDetails
-          name={"Player"}
-          cash={cash}
-          shares={shares}
-          portfolioValue={portfolioValue}
-          startingBalance={startingBalance}
-        />
-
-        <PortfolioDetails
           name="Ghost"
           cash={ghostCash}
           shares={ghostShares}
           portfolioValue={ghostPortfolioValue}
           startingBalance={startingBalance}
         />
+
+        <PortfolioDetails
+          name={"Player"}
+          cash={cash}
+          shares={shares}
+          portfolioValue={portfolioValue}
+          startingBalance={startingBalance}
+        />
       </div>
 
-      <div className="container mx-auto pb-8">
+      <div className="container mx-auto max-h-4 pb-8">
         <TransactionHistory
           startingBalance={startingBalance}
           transactions={transactions}
