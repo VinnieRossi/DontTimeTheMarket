@@ -108,9 +108,9 @@ const GameRules = ({
                 thousandSeparator={true}
                 prefix={"$"}
               />
-            </strong>{" "}
-            and includes no shares. As you make transactions, they will be
-            logged in the Transaction History section.
+            </strong>
+            . As you make transactions, they will be logged in the Transaction
+            History section. Good luck!
           </p>
         </div>
       </div>
