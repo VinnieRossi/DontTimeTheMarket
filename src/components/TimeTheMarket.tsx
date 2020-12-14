@@ -135,8 +135,9 @@ const TimeTheMarket = () => {
       shareQuantity: numberOfPurchasedShares,
       pricePerShare: sharePrice,
       transactionAmount: transactionAmount,
+      net: 0,
       currentPortfolioBalance: newBalance + transactionAmount,
-      transactionType: "bought",
+      transactionType: "Bought",
     };
 
     setPurchasedSharePrice(sharePrice);
@@ -157,8 +158,9 @@ const TimeTheMarket = () => {
       date: new Date(cleanData[daysPassed][0]),
       shareQuantity: shares,
       pricePerShare: sharePrice,
+      net: (sharePrice - purchasedSharePrice) * shares,
       currentPortfolioBalance: newBalance,
-      transactionType: "sold",
+      transactionType: "Sold",
     };
 
     setPurchasedSharePrice(0);
@@ -175,72 +177,75 @@ const TimeTheMarket = () => {
       <div className="container mx-auto p-8">
         <GameRules gameSpeed={gameSpeed} startingBalance={startingBalance} />
 
-        <div
-          className="container"
-          style={{
-            height: "400px",
-          }}
-        >
-          <Chart
-            data={inputData}
-            series={series}
-            getSeriesStyle={getSeriesStyle}
-            axes={axes}
-            tooltip
-          />
-        </div>
+        <div className="container grid grid-cols-2">
+          <div
+            className="container"
+            style={{
+              height: "400px",
+            }}
+          >
+            <Chart
+              data={inputData}
+              series={series}
+              getSeriesStyle={getSeriesStyle}
+              axes={axes}
+              tooltip
+            />
+          </div>
 
-        <div className="container grid grid-cols-2 mx-auto">
-          <div className="container mx-auto">
-            <div>
-              <GameSpeedControls
-                gameSpeed={gameSpeed}
-                setGameSpeed={setGameSpeed}
-              />
-            </div>
-
-            <div className="pt-8">
-              <BuySellStartControls
-                cash={cash}
-                shares={shares}
-                sharePrice={sharePrice}
-                isPaused={isPaused}
-                purchaseShares={purchaseShares}
-                sellShares={sellShares}
-                setIsPaused={setIsPaused}
-              />
-            </div>
-
-            <div className="pt-4 pb-4">
-              <span className="text-3xl font-semibold pr-4">
-                <NumberFormat
-                  value={sharePrice}
-                  style={{
-                    color: sharePrice >= purchasedSharePrice ? "green" : "red",
-                  }}
-                  decimalScale={2}
-                  fixedDecimalScale
-                  displayType={"text"}
-                  thousandSeparator={true}
-                  prefix={"$"}
+          <div className="container grid grid-cols-2 mx-auto">
+            <div className="container mx-auto">
+              <div>
+                <GameSpeedControls
+                  gameSpeed={gameSpeed}
+                  setGameSpeed={setGameSpeed}
                 />
-              </span>
-              <span className="">
-                <NumberFormat
-                  value={(sharePrice - purchasedSharePrice) * shares}
-                  style={{
-                    color: sharePrice >= purchasedSharePrice ? "green" : "red",
-                  }}
-                  allowNegative
-                  decimalScale={2}
-                  fixedDecimalScale
-                  displayType={"text"}
-                  thousandSeparator={true}
-                  prefix={"$"}
-                />
-              </span>
-            </div>
+              </div>
 
+              <div className="pt-8">
+                <BuySellStartControls
+                  cash={cash}
+                  shares={shares}
+                  sharePrice={sharePrice}
+                  isPaused={isPaused}
+                  purchaseShares={purchaseShares}
+                  sellShares={sellShares}
+                  setIsPaused={setIsPaused}
+                />
+              </div>
+
+              <div className="pt-4 pb-4">
+                <span className="text-3xl font-semibold pr-4">
+                  <NumberFormat
+                    value={sharePrice}
+                    style={{
+                      color:
+                        sharePrice >= purchasedSharePrice ? "green" : "red",
+                    }}
+                    decimalScale={2}
+                    fixedDecimalScale
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"$"}
+                  />
+                </span>
+                <span className="">
+                  <NumberFormat
+                    value={(sharePrice - purchasedSharePrice) * shares}
+                    style={{
+                      color:
+                        sharePrice >= purchasedSharePrice ? "green" : "red",
+                    }}
+                    allowNegative
+                    decimalScale={2}
+                    fixedDecimalScale
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"$"}
+                  />
+                </span>
+              </div>
+            </div>
             <div className="container space-y-4">
               <PortfolioDetails
                 name={"Player"}
@@ -259,13 +264,14 @@ const TimeTheMarket = () => {
               />
             </div>
           </div>
-          <div className="container pt-8">
-            <TransactionHistory
-              startingBalance={startingBalance}
-              transactions={transactions}
-            />
-          </div>
         </div>
+      </div>
+
+      <div className="container mx-auto pb-8">
+        <TransactionHistory
+          startingBalance={startingBalance}
+          transactions={transactions}
+        />
       </div>
 
       {isGameOver && <span>Game over!</span>}

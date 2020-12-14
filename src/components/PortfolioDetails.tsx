@@ -18,9 +18,9 @@ const PortfolioDetails = ({
   startingBalance,
 }: PortfolioDetailsProps): JSX.Element => {
   return (
-    <div className="container grid grid-cols-4">
+    <div className="container grid grid-cols-4 space-x-4">
       <div>
-        <Typography>{name} Balance:</Typography>
+        <Typography>{name} Cash:</Typography>
         <NumberFormat
           value={cash}
           decimalScale={2}
