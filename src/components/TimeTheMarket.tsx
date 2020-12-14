@@ -193,7 +193,7 @@ const TimeTheMarket = () => {
             />
           </div>
 
-          <div className="container grid grid-cols-2 mx-auto">
+          <div className="container grid grid-rows-2 mx-auto pl-4">
             <div className="container mx-auto">
               <div>
                 <GameSpeedControls
