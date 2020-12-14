@@ -5,5 +5,6 @@ module.exports = {
     tailwindcss("./tailwind.js"),
     require("autoprefixer"),
     require("@tailwindcss/typography"),
+    require("@tailwindcss/aspect-ratio"),
   ],
 };
