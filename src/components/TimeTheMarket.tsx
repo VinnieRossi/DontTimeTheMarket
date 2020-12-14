@@ -179,7 +179,7 @@ const TimeTheMarket = () => {
 
         <div className="container grid grid-cols-3">
           <div
-            className="container col-span-2"
+            className="container col-span-2 border-r rounded border-gray-100"
             style={{
               height: "400px",
             }}
@@ -193,8 +193,8 @@ const TimeTheMarket = () => {
             />
           </div>
 
-          <div className="container mx-auto pl-4">
-            <div className="container mx-auto">
+          <div className="container mx-auto">
+            <div className="container mx-auto pl-4">
               <div>
                 <GameSpeedControls
                   gameSpeed={gameSpeed}
@@ -214,7 +214,7 @@ const TimeTheMarket = () => {
                 />
               </div>
 
-              <div className="pt-4 pb-4">
+              <div className="pt-4">
                 <span className="text-3xl font-semibold pr-4">
                   <NumberFormat
                     value={sharePrice}
@@ -249,7 +249,7 @@ const TimeTheMarket = () => {
           </div>
         </div>
       </div>
-      <div className="container grid mx-auto grid-cols-2 space-x-4 pb-8">
+      <div className="container grid mx-auto grid-cols-2 space-x-4 py-4">
         <PortfolioDetails
           name="Ghost"
           cash={ghostCash}
@@ -267,7 +267,7 @@ const TimeTheMarket = () => {
         />
       </div>
 
-      <div className="container mx-auto max-h-4 pb-8">
+      <div className="container mx-auto pb-8">
         <TransactionHistory
           startingBalance={startingBalance}
           transactions={transactions}
