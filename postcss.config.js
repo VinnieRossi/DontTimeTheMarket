@@ -4,7 +4,5 @@ module.exports = {
     require("postcss-import"),
     tailwindcss("./tailwind.js"),
     require("autoprefixer"),
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/aspect-ratio"),
   ],
 };
