@@ -174,12 +174,12 @@ const TimeTheMarket = () => {
       <Link className="p-4" href="/">
         Back to Home
       </Link>
-      <div className="container mx-auto p-8">
+      <div className="container mx-auto">
         <GameRules gameSpeed={gameSpeed} startingBalance={startingBalance} />
 
-        <div className="container grid grid-cols-2">
+        <div className="container grid grid-cols-3">
           <div
-            className="container"
+            className="container col-span-2"
             style={{
               height: "400px",
             }}
@@ -193,7 +193,7 @@ const TimeTheMarket = () => {
             />
           </div>
 
-          <div className="container grid grid-rows-2 mx-auto pl-4">
+          <div className="container mx-auto pl-4">
             <div className="container mx-auto">
               <div>
                 <GameSpeedControls
@@ -246,25 +246,25 @@ const TimeTheMarket = () => {
                 </span>
               </div>
             </div>
-            <div className="container space-y-4">
-              <PortfolioDetails
-                name={"Player"}
-                cash={cash}
-                shares={shares}
-                portfolioValue={portfolioValue}
-                startingBalance={startingBalance}
-              />
-
-              <PortfolioDetails
-                name="Ghost"
-                cash={ghostCash}
-                shares={ghostShares}
-                portfolioValue={ghostPortfolioValue}
-                startingBalance={startingBalance}
-              />
-            </div>
           </div>
         </div>
+      </div>
+      <div className="container grid mx-auto grid-cols-2 space-x-4 pb-8">
+        <PortfolioDetails
+          name={"Player"}
+          cash={cash}
+          shares={shares}
+          portfolioValue={portfolioValue}
+          startingBalance={startingBalance}
+        />
+
+        <PortfolioDetails
+          name="Ghost"
+          cash={ghostCash}
+          shares={ghostShares}
+          portfolioValue={ghostPortfolioValue}
+          startingBalance={startingBalance}
+        />
       </div>
 
       <div className="container mx-auto pb-8">
