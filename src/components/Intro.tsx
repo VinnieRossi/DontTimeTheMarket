@@ -129,8 +129,7 @@ const Intro = (): JSX.Element => {
             sed <strong>eget risus enim</strong>. Mattis mauris semper sed amet
             vitae sed turpis id. Id dolor praesent donec est. Odio penatibus
             risus viverra tellus varius sit neque erat velit. Faucibus commodo
-            massa rhoncus, volutpat. Dignissim sed eget risus enim.{" "}
-            <a href="#">Mattis mauris semper</a> sed amet vitae sed turpis id.
+            massa rhoncus, volutpat. Dignissim sed eget risus enim.
           </p>
           <ul>
             <li>Quis elit egestas venenatis mattis dignissim.</li>
@@ -182,12 +181,12 @@ const Intro = (): JSX.Element => {
           </figure>
           <h2>Everything you need to get up and running</h2>
           <p>
-            Purus morbi dignissim senectus mattis <a href="#">adipiscing</a>.
-            Amet, massa quam varius orci dapibus volutpat cras. In amet eu
-            ridiculus leo sodales cursus tristique. Tincidunt sed tempus ut
-            viverra ridiculus non molestie. Gravida quis fringilla amet eget dui
-            tempor dignissim. Facilisis auctor venenatis varius nunc, congue
-            erat ac. Cras fermentum convallis quam.
+            Purus morbi dignissim senectus mattis. Amet, massa quam varius orci
+            dapibus volutpat cras. In amet eu ridiculus leo sodales cursus
+            tristique. Tincidunt sed tempus ut viverra ridiculus non molestie.
+            Gravida quis fringilla amet eget dui tempor dignissim. Facilisis
+            auctor venenatis varius nunc, congue erat ac. Cras fermentum
+            convallis quam.
           </p>
           <p>
             Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus
