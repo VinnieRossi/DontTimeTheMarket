@@ -1,4 +1,4 @@
-import { Grid, Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import React from "react";
 
 interface GameSpeedControlsProps {
@@ -11,8 +11,13 @@ const GameSpeedControls = ({
   setGameSpeed,
 }: GameSpeedControlsProps): JSX.Element => {
   return (
-    <Grid item container justify="flex-start">
-      <Grid item>
+    <div className="container">
+      <div className="container flex">
+        <span className="mx-auto text-sm text-gray-400">
+          {parseFloat((3 / gameSpeed).toFixed(2)) * 100}%
+        </span>
+      </div>
+      <div>
         <Button
           disabled={gameSpeed === 10}
           onClick={() => {
@@ -21,8 +26,6 @@ const GameSpeedControls = ({
         >
           Slow down
         </Button>
-      </Grid>
-      <Grid item>
         <Button
           disabled={gameSpeed === 1}
           onClick={() => {
@@ -31,8 +34,8 @@ const GameSpeedControls = ({
         >
           Speed up
         </Button>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 

@@ -195,12 +195,10 @@ const TimeTheMarket = () => {
 
           <div className="container mx-auto">
             <div className="container mx-auto pl-4">
-              <div>
-                <GameSpeedControls
-                  gameSpeed={gameSpeed}
-                  setGameSpeed={setGameSpeed}
-                />
-              </div>
+              <GameSpeedControls
+                gameSpeed={gameSpeed}
+                setGameSpeed={setGameSpeed}
+              />
 
               <div className="pt-8">
                 <BuySellStartControls
