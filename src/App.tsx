@@ -1,7 +1,6 @@
 import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import Intro from "./components/Intro";
 import TimeTheMarket from "./components/TimeTheMarket";
-import "tailwindcss/tailwind.css";
 
 const App = (): JSX.Element => {
   return (
