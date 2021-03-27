@@ -31,7 +31,7 @@ const cleanData = data.map((datum) => {
 });
 
 const TimeTheMarket = () => {
-  const startingBalance = 1000000;
+  const startingBalance = 100000;
   const [transactions, setTransactions] = useState<any>([]);
 
   const [cash, setCash] = useState(startingBalance);

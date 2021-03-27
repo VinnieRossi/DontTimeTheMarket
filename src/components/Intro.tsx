@@ -12,91 +12,71 @@ const Intro = (): JSX.Element => {
       <div className="relative px-4 sm:px-6 lg:px-8">
         <div className="text-lg max-w-prose mx-auto">
           <h1>
-            <span className="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase">
-              Bogle's Folly
-            </span>
+            <a
+              href="/play"
+              className="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase"
+            >
+              Skip the learning, play now
+            </a>
             <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Don't time the market!
             </span>
           </h1>
           <p className="mt-8 text-xl text-gray-500 leading-8">
-            Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At
-            arcu, sit dui mi, nibh dui, diam eget aliquam. Quisque id at vitae
-            feugiat egestas ac. Diam nulla orci at in viverra scelerisque eget.
-            Eleifend egestas fringilla sapien.
+            For those who are familiar with online financial forums, it's
+            something you've heard dozens of times. But how accurate is it?
           </p>
         </div>
         <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
           <p>
-            Faucibus commodo massa rhoncus, volutpat. <strong>Dignissim</strong>{" "}
-            sed <strong>eget risus enim</strong>. Mattis mauris semper sed amet
-            vitae sed turpis id. Id dolor praesent donec est. Odio penatibus
-            risus viverra tellus varius sit neque erat velit. Faucibus commodo
-            massa rhoncus, volutpat. Dignissim sed eget risus enim.
+            This piece of advice is generally paired with the quote{" "}
+            <strong>"Time in the market beats timing the market"</strong>. The
+            message is simple - You simply cannot beat the market by actively
+            trading. You would be better off investing in some index that tracks
+            the market and sitting on your hands.
           </p>
-          <ul>
-            <li>Quis elit egestas venenatis mattis dignissim.</li>
-            <li>
-              Cras cras lobortis vitae vivamus ultricies facilisis tempus.
-            </li>
-            <li>Orci in sit morbi dignissim metus diam arcu pretium.</li>
-          </ul>
           <p>
-            Quis semper vulputate aliquam venenatis egestas sagittis quisque
-            orci. Donec commodo sit viverra aliquam porttitor ultrices gravida
-            eu. Tincidunt leo, elementum mattis elementum ut nisl, justo, amet,
-            mattis. Nunc purus, diam commodo tincidunt turpis. Amet, duis sed
-            elit interdum dignissim.
+            But how is that so? One could imagine that even a simple pattern of
+            buying low and selling high should beat out doing absolutely
+            nothing, right? Or what about if the market is crashing? An active
+            investor could surely get out early and join back in only once the
+            market has recovered.
           </p>
-          <h2>From beginner to expert in 30 days</h2>
+          <h2>The problem is you</h2>
           <p>
-            Id orci tellus laoreet id ac. Dolor, aenean leo, ac etiam consequat
-            in. Convallis arcu ipsum urna nibh. Pharetra, euismod vitae interdum
-            mauris enim, consequat vulputate nibh. Maecenas pellentesque id sed
-            tellus mauris, ultrices mauris. Tincidunt enim cursus ridiculus mi.
-            Pellentesque nam sed nullam sed diam turpis ipsum eu a sed convallis
-            diam.
+            So here's the problem. Even though the strategy seems
+            straightforward, it's your emotions that would betray you. How long
+            could you realistically sit on losses before you decide to "cut"
+            them? Days? Weeks? Months? Doubtful. Most people don't have that
+            patience, especially with something as important as their life
+            savings. There's a special feeling when your $5,000 investment loses
+            half of its value in a day that can't really be explained.
           </p>
           <blockquote>
             <p>
-              Sagittis scelerisque nulla cursus in enim consectetur quam. Dictum
-              urna sed consectetur neque tristique pellentesque. Blandit amet,
-              sed aenean erat arcu morbi.
+              Calling someone who trades actively in the market an investor is
+              like calling someone who repeatedly engages in one-night stands a
+              romantic.
             </p>
           </blockquote>
+          - Warren Buffet
           <p>
-            Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus
-            enim. Mattis mauris semper sed amet vitae sed turpis id. Id dolor
-            praesent donec est. Odio penatibus risus viverra tellus varius sit
-            neque erat velit.
+            There's no shortage of quotes like this from Warren Buffet. But what
+            does he know?
           </p>
-          <figure>
-            <img
-              className="w-full rounded-lg"
-              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&w=1310&h=873&q=80&facepad=3"
-              alt=""
-              width="1310"
-              height="873"
-            />
-            <figcaption>
-              Sagittis scelerisque nulla cursus in enim consectetur quam.
-            </figcaption>
-          </figure>
-          <h2>Everything you need to get up and running</h2>
+          <h2>I've heard enough - Let me prove you wrong!</h2>
           <p>
-            Purus morbi dignissim senectus mattis. Amet, massa quam varius orci
-            dapibus volutpat cras. In amet eu ridiculus leo sodales cursus
-            tristique. Tincidunt sed tempus ut viverra ridiculus non molestie.
-            Gravida quis fringilla amet eget dui tempor dignissim. Facilisis
-            auctor venenatis varius nunc, congue erat ac. Cras fermentum
-            convallis quam.
+            I've built a simulation that will allow you to actively trade and
+            time the market! But...you have a competitor. Can a lazy investor
+            who never makes a single trade really beat you? Only one way to find
+            out.
           </p>
-          <p>
-            Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus
-            enim. Mattis mauris semper sed amet vitae sed turpis id. Id dolor
-            praesent donec est. Odio penatibus risus viverra tellus varius sit
-            neque erat velit.
-          </p>
+          <a
+            href="/play"
+            className="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase"
+          >
+            Let's lose some money!
+          </a>
         </div>
       </div>
     </div>
