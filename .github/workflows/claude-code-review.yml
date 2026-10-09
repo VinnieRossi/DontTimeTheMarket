@@ -111,27 +111,25 @@ jobs:
 
             ## Read first
             1. AGENTS.md, which is the canonical statement of the rules.
-            2. docs/architecture.md, for the layer table and the rules stricter than it.
+            2. docs/architecture.md, for the layer table and the three rules stricter than it.
             3. The diff: gh pr diff ${{ needs.pre-check.outputs.pr_number }}
             4. The gate result: gh pr checks ${{ needs.pre-check.outputs.pr_number }}
 
             ## What to check
 
             Architecture. Does every import flow downward? Is a new package registered in the
-            dependency allowlist? Does presentation reach into the simulation rather than taking
-            what it renders as props?
+            dependency allowlist? Does presentation reach for data, or a query reach past the
+            contract into a service?
 
-            Single source of truth. Is a rule about what a run costs or scores restated outside
-            the engine? Is a validation rule written twice?
-
-            Determinism. Does the engine still read no clock, no environment, and no random
-            source? Does every new draw advance the counter carried in the state?
+            Single source of truth. Is a type restated that the schema already derives? Is a
+            validation rule written twice?
 
             Boundaries. Is external input parsed at the boundary by the schema that also produces
-            its type? Does a component reach for data rather than taking it as a prop?
+            its type? Does a vendor type or a vendor error escape a provider? Is a permission
+            enforced on the server regardless of what the interface hides?
 
-            Failure paths. Is an error swallowed, or returned where the caller can forget to check
-            it? Does a screen render a state the engine never produces?
+            Failure paths. Can work be dropped without a trace? Is an error swallowed, or returned
+            where the caller can forget to check it? Does a handler invent its own error shape?
 
             Tests. Do they assert what a caller can observe, or internal state? Do they cover the
             failure paths, not only the success path? Is anything skipped, marked only, or left as
