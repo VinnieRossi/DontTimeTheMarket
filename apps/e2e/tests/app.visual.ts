@@ -4,11 +4,12 @@ import { expect, test } from '@playwright/test'
 const APP = process.env['APP_BASE_URL'] ?? 'http://localhost:3102'
 
 /**
- * The example feature's only screen, against a freshly reset database (see `playwright.config.ts`),
- * so it always renders its empty state rather than whatever a previous run happened to leave
- * behind.
+ * The screens the app renders from nothing but its own code. The opening screen is the only one
+ * of those: a run picks a random slice of history and then advances on a timer, so a screenshot
+ * of a game in progress would differ on every take. The game, the scoreboard and the sheets are
+ * covered instead by their stories, which render from fixed props at both of these widths.
  */
-const SCREENS: ReadonlyArray<readonly [string, string]> = [['notes', '/']]
+const SCREENS: ReadonlyArray<readonly [string, string]> = [['start', '/']]
 
 for (const [name, path] of SCREENS) {
   test(`app: ${name} renders`, async ({ page }) => {

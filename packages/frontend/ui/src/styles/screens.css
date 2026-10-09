@@ -1,0 +1,277 @@
+/*
+ * The screens: the page frame, the three game screens, and the bottom sheets they open. Layout
+ * only, and small-screen first, because this is a game somebody plays on a phone while pretending
+ * to listen in a meeting.
+ */
+
+.app-page {
+  min-height: 100vh;
+}
+
+.app-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 672px;
+  margin: 0 auto;
+  padding: var(--app-space-7) var(--app-space-7);
+}
+
+.app-page__brand {
+  color: var(--app-accent);
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-lg);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-page__body {
+  max-width: 672px;
+  margin: 0 auto;
+  padding: 0 var(--app-space-7) var(--app-space-7);
+}
+
+.app-page__body--narrow {
+  max-width: 576px;
+  padding-top: var(--app-space-2);
+}
+
+/* The start and end screens: one card, centered, with fine print under it. */
+.app-screen-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-7);
+}
+
+.app-start__lede {
+  margin: var(--app-space-3) 0 0;
+}
+
+.app-start__group {
+  margin-top: var(--app-space-9);
+}
+
+.app-start__group-title {
+  margin: 0 0 var(--app-space-3);
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-lg);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-start__action {
+  margin-top: var(--app-space-9);
+}
+
+.app-start__footnote {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+  text-align: center;
+  margin: 0;
+}
+
+/* The running game. */
+.app-game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-7);
+}
+
+.app-game__hud {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+}
+
+.app-game__clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+}
+
+.app-game__day {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-game__values {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--app-space-4);
+  border-top: 1px solid var(--app-border);
+}
+
+.app-game__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--app-space-4);
+}
+
+.app-game__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--app-space-4);
+}
+
+.app-game__cashout {
+  padding: var(--app-space-8);
+  background: var(--app-surface-raised);
+  border-radius: var(--app-radius-card);
+  box-shadow: var(--app-shadow);
+  text-align: center;
+}
+
+/* The end screen scoreboard. */
+.app-end {
+  text-align: center;
+}
+
+.app-end__edge {
+  margin-top: var(--app-space-3);
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-5xl);
+  font-weight: var(--app-weight-bold);
+  line-height: var(--app-leading-tight);
+}
+
+.app-end__verdict {
+  margin: var(--app-space-3) 0 0;
+}
+
+.app-end__scores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-space-4);
+  margin-top: var(--app-space-7);
+  text-align: left;
+}
+
+.app-end__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  margin-top: var(--app-space-7);
+}
+
+/* The bottom sheets. They open from the bottom edge, which is where a thumb already is. */
+.app-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--app-overlay);
+}
+
+/*
+ * The tap-outside-to-close target is a real button rather than a click handler on the backdrop,
+ * so it has a name, takes focus, and answers the keyboard like every other control here.
+ */
+.app-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: none;
+  cursor: default;
+}
+
+.app-sheet__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 512px;
+  max-height: 90dvh;
+  background: var(--app-surface-raised);
+  border-radius: var(--app-radius-sheet) var(--app-radius-sheet) 0 0;
+}
+
+.app-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-8);
+}
+
+.app-sheet__handle {
+  width: var(--app-space-10);
+  height: var(--app-space-1);
+  margin: 0 auto var(--app-space-7);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-border);
+}
+
+.app-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-5);
+}
+
+.app-sheet__lede {
+  margin: var(--app-space-1) 0 0;
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-md);
+}
+
+.app-sheet__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  flex-shrink: 0;
+  padding: var(--app-space-7) var(--app-space-8)
+    max(var(--app-space-8), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--app-border);
+}
+
+.app-sheet__group {
+  margin-top: var(--app-space-6);
+  padding-top: var(--app-space-6);
+  border-top: 1px solid var(--app-border);
+}
+
+.app-sheet__group-title {
+  margin-bottom: var(--app-space-3);
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.app-sheet__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  margin-top: var(--app-space-4);
+}
+
+/* Spacing above a block in a sheet, with no opinion about how the block lays itself out. */
+.app-sheet__block {
+  margin-top: var(--app-space-4);
+}
+
+.app-order {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  padding: var(--app-space-3) 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: var(--app-text-md);
+}
+
+.app-order__cancel {
+  padding: var(--app-space-1) var(--app-space-4);
+  border: none;
+  border-radius: var(--app-radius-pill);
+  background: var(--app-border);
+  color: var(--app-ink);
+  font-family: inherit;
+  font-size: var(--app-text-sm);
+  cursor: pointer;
+}

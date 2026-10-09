@@ -6,9 +6,9 @@ import { Button } from './Button'
 describe('Button', () => {
   it('renders its label and reports a click', async () => {
     const onClick = vi.fn()
-    render(<Button onClick={onClick}>Save note</Button>)
+    render(<Button onClick={onClick}>Start run</Button>)
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save note' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Start run' }))
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
@@ -16,7 +16,7 @@ describe('Button', () => {
     const onClick = vi.fn()
     render(
       <Button disabled onClick={onClick}>
-        Save note
+        Continue this run
       </Button>
     )
 
@@ -24,24 +24,9 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled()
   })
 
-  it('cannot be pressed twice while the action is in flight', async () => {
-    const onClick = vi.fn()
-    render(
-      <Button busy onClick={onClick}>
-        Saving
-      </Button>
-    )
-
-    const button = screen.getByRole('button')
-    expect(button).toBeDisabled()
-    expect(button).toHaveAttribute('aria-busy', 'true')
-    await userEvent.click(button)
-    expect(onClick).not.toHaveBeenCalled()
-  })
-
   it('is reachable and operable from the keyboard alone', async () => {
     const onClick = vi.fn()
-    render(<Button onClick={onClick}>Save note</Button>)
+    render(<Button onClick={onClick}>Start run</Button>)
 
     await userEvent.tab()
     expect(screen.getByRole('button')).toHaveFocus()
@@ -50,23 +35,35 @@ describe('Button', () => {
   })
 
   it('defaults to a plain button, so it cannot submit a form by accident', () => {
-    render(<Button>Save note</Button>)
+    render(<Button>Start run</Button>)
     expect(screen.getByRole('button')).toHaveAttribute('type', 'button')
   })
 
   it('submits when asked to', () => {
-    render(<Button type="submit">Save note</Button>)
+    render(<Button type="submit">Start run</Button>)
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
   })
 
   it('carries the variant and size in its class names, which is where the tokens resolve', () => {
     render(
-      <Button variant="danger" size="lg">
-        Delete note
+      <Button variant="sell" size="lg" fullWidth>
+        Sell
       </Button>
     )
     const button = screen.getByRole('button')
-    expect(button.className).toContain('app-button--danger')
+    expect(button.className).toContain('app-button--sell')
     expect(button.className).toContain('app-button--lg')
+    expect(button.className).toContain('app-button--full')
+  })
+
+  it('gets its name from the label when the only thing visible is a glyph', () => {
+    render(
+      <Button icon label="Realism settings">
+        {'⚙'}
+      </Button>
+    )
+    expect(screen.getByRole('button', { name: 'Realism settings' }).className).toContain(
+      'app-button--icon'
+    )
   })
 })

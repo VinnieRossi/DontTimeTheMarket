@@ -5,6 +5,12 @@ name: Update visual baselines
 # that job uses, and commits the result back to the branch that asked for it.
 on:
   workflow_dispatch: {}
+  # Temporary, for this branch only. A workflow_dispatch run is only offered for a workflow that
+  # already exists on the default branch, and this one does not yet, so the first Linux-rendered
+  # baselines this project has are bootstrapped from a push instead. Remove this trigger once
+  # those baselines are committed; workflow_dispatch is the only trigger it ships with.
+  push:
+    branches: [fm/dttm-quickstart-baseline]
 
 permissions:
   contents: write

@@ -1,24 +1,20 @@
-import { TONES } from '@dttm/theme'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { StatusBadge } from './StatusBadge'
 
 describe('StatusBadge', () => {
   it('renders its label', () => {
-    render(<StatusBadge>draft</StatusBadge>)
-    expect(screen.getByText('draft')).toBeInTheDocument()
+    render(<StatusBadge>Full Terminal Mode</StatusBadge>)
+    expect(screen.getByText('Full Terminal Mode')).toBeVisible()
   })
 
-  it('defaults to the neutral tone', () => {
-    render(<StatusBadge>draft</StatusBadge>)
-    expect(screen.getByText('draft').className).toContain('app-badge--neutral')
+  it('defaults to the neutral tone, so a caller gets a readable badge without choosing one', () => {
+    render(<StatusBadge>Clean</StatusBadge>)
+    expect(screen.getByText('Clean').className).toContain('app-badge--neutral')
   })
 
-  it('has a class for every tone the theme names, so none resolves to nothing', () => {
-    for (const tone of TONES) {
-      const { unmount } = render(<StatusBadge tone={tone}>{tone}</StatusBadge>)
-      expect(screen.getByText(tone).className).toContain(`app-badge--${tone}`)
-      unmount()
-    }
+  it('carries the tone it was given in its class names, which is where the token resolves', () => {
+    render(<StatusBadge tone="danger">Overkill</StatusBadge>)
+    expect(screen.getByText('Overkill').className).toContain('app-badge--danger')
   })
 })

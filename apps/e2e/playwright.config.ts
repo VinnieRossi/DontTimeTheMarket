@@ -5,18 +5,23 @@ import { defineConfig, devices } from '@playwright/test'
 const E2E_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT_DIR = resolve(E2E_DIR, '..', '..')
 
-/** A dedicated port and database per target, so a visual run never collides with `pnpm dev`. */
+/** A dedicated port per target, so a visual run never collides with `pnpm dev`. */
 const APP_BASE_URL = 'http://localhost:3102'
 const STORYBOOK_BASE_URL = 'http://localhost:6101'
-const VISUAL_DATABASE_DIR = resolve(ROOT_DIR, 'apps', 'e2e', '.storage', 'visual-db')
 
 /**
- * Visual regression against the running app and the built Storybook. Baselines are deterministic
- * because both targets render from a fixed source: the app opens an empty, freshly reset
- * database, and every story renders from its own args rather than from anything fetched. Not
- * part of `pnpm verify` because a screenshot diff is platform-specific; it runs as its own
- * dedicated CI job instead, the same way the suite this one is patterned on keeps it out of its
- * gate. See `apps/e2e/AGENTS.md` for how a diff there gets resolved.
+ * Visual regression against the running app and the built Storybook, at both widths the game is
+ * played at: a desktop window and a 390 pixel phone, which is the narrowest layout the design
+ * targets.
+ *
+ * Baselines are deterministic because both targets render from a fixed source: the app's opening
+ * screen holds no run yet, and every story renders from its own args rather than from anything
+ * generated. The running game is covered by its stories rather than by an app screenshot, because
+ * a run opens on a seeded random slice of history and advances on a timer, so no two app-level
+ * screenshots of it would agree.
+ *
+ * Not part of `pnpm verify`, because a screenshot diff is platform-specific; it runs as its own
+ * dedicated CI job instead. See `apps/e2e/AGENTS.md` for how a diff there gets resolved.
  */
 export default defineConfig({
   testDir: './tests',
@@ -30,7 +35,6 @@ export default defineConfig({
     timeout: 10_000,
     toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', caret: 'hide' },
   },
-  use: { viewport: { width: 1280, height: 800 } },
   webServer: [
     {
       // `storybook:build` has already run by the time this starts: `test:visual` builds it before
@@ -45,21 +49,31 @@ export default defineConfig({
       cwd: ROOT_DIR,
     },
     {
-      command: [
-        `rm -rf ${VISUAL_DATABASE_DIR}`,
-        'pnpm --filter @dttm/web exec next dev -p 3102',
-      ].join(' && '),
+      command: 'pnpm --filter @dttm/web exec next dev -p 3102',
       url: APP_BASE_URL,
       reuseExistingServer: false,
       timeout: 60_000,
       cwd: ROOT_DIR,
-      env: {
-        PROVIDER_MODE: 'mock',
-        APP_URL: APP_BASE_URL,
-        DATABASE_DIR: VISUAL_DATABASE_DIR,
-        LOG_LEVEL: 'error',
+    },
+  ],
+  /*
+   * Both widths run on the same Chromium the functional suite installs: a second engine would be
+   * a second set of baselines to keep, and what is being checked here is the layout at a phone
+   * width rather than one vendor's rendering of it.
+   */
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+    },
+    {
+      name: 'mobile',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
       },
     },
   ],
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 })

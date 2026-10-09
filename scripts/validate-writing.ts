@@ -36,7 +36,7 @@ const SPELLINGS: readonly [RegExp, string][] = [
 ]
 
 const CHECKED_EXTENSIONS = ['.ts', '.tsx', '.css', '.md', '.json', '.yml', '.yaml']
-const EXEMPT = ['/drizzle/', '.gen.', 'pnpm-lock.yaml', 'scripts/validate-writing.ts']
+const EXEMPT = ['.gen.', 'pnpm-lock.yaml', 'scripts/validate-writing.ts']
 
 const staged = process.argv.includes('--staged')
 const candidates = filesToCheck(staged).filter(

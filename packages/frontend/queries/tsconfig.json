@@ -1,9 +1,0 @@
-{
-  "extends": "@dttm/config/tsconfig/base",
-  "compilerOptions": {
-    // This package runs in a browser: it resolves the current origin and builds URLs.
-    "lib": ["ES2023", "DOM"]
-  },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
-}

@@ -1,8 +1,0 @@
-{
-  "extends": "@dttm/config/tsconfig/base",
-  "compilerOptions": {
-    "types": ["node"]
-  },
-  "include": ["src/**/*.ts", "drizzle.config.ts"],
-  "exclude": ["node_modules", "dist"]
-}

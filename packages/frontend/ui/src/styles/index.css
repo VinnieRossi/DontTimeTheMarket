@@ -1,4 +1,6 @@
-/* The stylesheet the app and Storybook both load. Tokens first, then the components. */
+/* The stylesheet the app and Storybook both load. Faces and tokens first, then the components. */
+@import "@dttm/theme/fonts.css";
 @import "@dttm/theme/tokens.css";
 @import "./base.css";
 @import "./components.css";
+@import "./screens.css";

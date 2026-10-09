@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { isTone, SIZES, TONES } from './index'
+import { isTone, MIRRORED_TOKENS, RAW_TOKENS, SIZES, TONES } from './index'
 
 /**
  * The token file is a machine-consumed stylesheet, so it is parsed into the custom properties each
@@ -43,6 +43,14 @@ describe('tones', () => {
 
   it('names three sizes, which is what the components implement', () => {
     expect(SIZES).toEqual(['sm', 'md', 'lg'])
+  })
+})
+
+describe('the mirrored token values', () => {
+  it('still equal the tokens they mirror, so an icon cannot drift from the palette', () => {
+    for (const [name, token] of Object.entries(MIRRORED_TOKENS)) {
+      expect(tokens.get(token), token).toBe(RAW_TOKENS[name as keyof typeof RAW_TOKENS])
+    }
   })
 })
 

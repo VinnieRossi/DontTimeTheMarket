@@ -1,34 +1,52 @@
 import { describe, expect, it } from 'vitest'
-import { formatIsoDate, truncate } from './format'
+import {
+  formatBasisPoints,
+  formatMoney,
+  formatPercent,
+  formatShares,
+  formatSignedPercent,
+} from './format'
 
-describe('formatIsoDate', () => {
-  it('renders a calendar date in UTC, zero-padded', () => {
-    expect(formatIsoDate(new Date('2026-03-07T23:59:00.000Z'))).toBe('2026-03-07')
+describe('formatMoney', () => {
+  it('groups thousands and drops the cents', () => {
+    expect(formatMoney(10_604.42)).toBe('$10,604')
   })
 
-  it('does not shift the date across a timezone boundary', () => {
-    expect(formatIsoDate(new Date('2026-01-01T00:00:00.000Z'))).toBe('2026-01-01')
+  it('puts a loss in front of the symbol rather than after it', () => {
+    expect(formatMoney(-1234.5)).toBe('-$1,235')
+  })
+
+  it('renders nothing left as zero rather than as an empty string', () => {
+    expect(formatMoney(0)).toBe('$0')
   })
 })
 
-describe('truncate', () => {
-  it('leaves a short string alone', () => {
-    expect(truncate('short', 10)).toBe('short')
+describe('formatSignedPercent', () => {
+  it('says which way a gap went, including when it is exactly even', () => {
+    expect(formatSignedPercent(2.44)).toBe('+2.4%')
+    expect(formatSignedPercent(-6.09)).toBe('-6.1%')
+    expect(formatSignedPercent(0)).toBe('+0.0%')
   })
+})
 
-  it('leaves a string of exactly the limit alone', () => {
-    expect(truncate('exact', 5)).toBe('exact')
+describe('formatPercent', () => {
+  it('adds no sign, for a figure that is not a comparison', () => {
+    expect(formatPercent(18.44)).toBe('18.4%')
+    expect(formatPercent(-12.1)).toBe('-12.1%')
   })
+})
 
-  it('cuts at the limit and marks the cut', () => {
-    expect(truncate('a longer sentence', 8)).toBe('a longer...')
+describe('formatBasisPoints', () => {
+  it('rounds to whole points and keeps the sign', () => {
+    expect(formatBasisPoints(183.6)).toBe('+184 bps')
+    expect(formatBasisPoints(-202.6)).toBe('-203 bps')
+    expect(formatBasisPoints(0)).toBe('+0 bps')
   })
+})
 
-  it('does not leave trailing whitespace before the marker', () => {
-    expect(truncate('a longer sentence', 9)).toBe('a longer...')
-  })
-
-  it('returns nothing for a non-positive limit', () => {
-    expect(truncate('anything', 0)).toBe('')
+describe('formatShares', () => {
+  it('keeps two places, because a dollar-sized buy rarely lands on a whole share', () => {
+    expect(formatShares(62.4149)).toBe('62.41')
+    expect(formatShares(0)).toBe('0.00')
   })
 })

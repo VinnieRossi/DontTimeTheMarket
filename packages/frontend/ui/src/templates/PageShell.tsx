@@ -2,29 +2,25 @@ import type { ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 export interface PageShellProps {
-  title: string
-  description?: string
-  /** Rendered beside the title: the page's primary action, when it has one. */
-  actions?: ReactNode
+  /** The name in the corner. It is the only chrome the game has. */
+  brand: string
   children: ReactNode
+  /** A narrow body, for the single-card screens that open and close a run. */
+  narrow?: boolean
   className?: string | undefined
 }
 
 /**
- * The page frame: a heading, an optional description, room for a primary action, and the content.
- * Every page uses it, so heading levels and spacing are decided once rather than per page.
+ * The page frame: the name in the corner and a centered column under it. Every screen uses it, so
+ * the column width and the gutter are decided once rather than per screen.
  */
-export function PageShell({ title, description, actions, children, className }: PageShellProps) {
+export function PageShell({ brand, children, narrow = false, className }: PageShellProps) {
   return (
-    <main className={cn('app-page', className)}>
+    <div className={cn('app-page', className)}>
       <header className="app-page__header">
-        <div>
-          <h1 className="app-page__title">{title}</h1>
-          {description !== undefined && <p className="app-page__description">{description}</p>}
-        </div>
-        {actions !== undefined && <div className="app-row">{actions}</div>}
+        <span className="app-page__brand">{brand}</span>
       </header>
-      {children}
-    </main>
+      <main className={cn('app-page__body', narrow && 'app-page__body--narrow')}>{children}</main>
+    </div>
   )
 }

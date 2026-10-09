@@ -10,8 +10,9 @@ Before modifying code you MUST:
 1. Read the files you intend to change, all the way through.
 2. Read the instruction file for the package if it has one.
 3. Read an adjacent file that already does something similar, and follow its shape.
-4. Read the example feature end to end if you are adding a feature, because it is the pattern
-   the repository expects new work to copy.
+4. Read one vertical slice end to end if you are adding a feature: a rule in the engine, the
+   mapping that turns a run into what a screen takes, the component that renders it, and the test
+   at each level. That is the pattern this repository expects new work to copy.
 
 Never assume a convention. A change that looks right in isolation and contradicts the
 surrounding code costs more to untangle than it saved, and the next agent to touch either file

@@ -2,7 +2,7 @@
   "name": "dont-time-the-market",
   "version": "0.0.0",
   "private": true,
-  "description": "Template monorepo for AI-assisted projects: layered packages, one validation gate, agent governance",
+  "description": "Trade a randomized slice of real market history and find out why timing it does not work",
   "packageManager": "pnpm@11.11.0",
   "engines": {
     "node": ">=24"
@@ -22,13 +22,11 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "db:generate": "pnpm --filter @dttm/database db:generate",
-    "db:migrate": "pnpm --filter @dttm/database db:migrate",
+    "bake-data": "tsx scripts/bake-data.ts",
     "verify": "tsx scripts/verify.ts",
     "verify:staged": "tsx scripts/verify.ts --staged",
     "validate": "tsx scripts/run-validators.ts",
     "validate:architecture": "tsx scripts/validate-architecture.ts",
-    "init-project": "tsx scripts/init-project.ts",
     "prepare": "husky"
   },
   "devDependencies": {

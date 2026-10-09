@@ -15,32 +15,30 @@ What this change does, and why. One paragraph.
 ## Layers touched
 
 - [ ] 5 Apps: the web app
-- [ ] 4 Application: ui, hooks, queries
-- [ ] 3 Feature: services
-- [ ] 2 Infrastructure: contracts, providers, auth
-- [ ] 1 Foundation: types, utils, logger, env, validation, database, theme
+- [ ] 4 Application: ui, hooks
+- [ ] 3 Feature: engine
+- [ ] 1 Foundation: config, types, utils, validation, theme
 
 ## Architecture
 
 - [ ] Imports flow downward only, and any new package is registered in the dependency allowlist
-- [ ] No type is restated that the schema already derives
+- [ ] No rule about what a run costs or scores lives outside the engine
 - [ ] External input is parsed at the boundary by the schema that also produces its type
-- [ ] Third-party services are reached through a port, with no vendor type or vendor error escaping it
-- [ ] Permissions are enforced on the server, whatever the interface hides
 - [ ] Visual values come from theme tokens
-- [ ] No work can be dropped without a trace: anything that can fail is retried and then alerted on
+- [ ] A component takes what it renders as props and reports what happened through callbacks
 
-## Database
+## Determinism
 
-- [ ] No schema change
-- [ ] The schema changed, and its migration is committed in this change
-- [ ] A destructive change is staged across releases rather than done in one step
-- [ ] How to reverse it is written down
+- [ ] The engine still reads no clock, no environment, and no random source
+- [ ] Any new randomness advances the counter carried in the state
+- [ ] A test that opens a run names its seed
+- [ ] The baked market data is unchanged, or it was rebaked and the change is explained
 
 ## Tests
 
 - [ ] Unit tests cover the new behavior, including its failure paths
-- [ ] Every new component has a story and a test
+- [ ] Every new component has a story, a test, and a row in the accessibility table
+- [ ] Visual baselines are regenerated on the runner if the change was meant to be visible
 - [ ] Coverage thresholds still pass
 
 ## Driven

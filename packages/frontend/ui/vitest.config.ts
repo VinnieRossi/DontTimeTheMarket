@@ -12,7 +12,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.tsx', 'src/**/*.stories.tsx', 'src/index.ts'],
+      // Story fixtures are scaffolding for the stories rather than shipped behavior, so counting
+      // them would measure how thoroughly the tests test their own sample data.
+      exclude: [
+        'src/**/*.test.tsx',
+        'src/**/*.stories.tsx',
+        'src/index.ts',
+        'src/story-support.ts',
+      ],
       thresholds,
     },
   },

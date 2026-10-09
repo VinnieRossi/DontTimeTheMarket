@@ -11,7 +11,7 @@ const SOURCE_LIMIT = 500
 const ORCHESTRATION_LIMIT = 200
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.css']
-const EXEMPT = ['/drizzle/', '.gen.', '/storybook-static/', '/dist/', '/.next/']
+const EXEMPT = ['.gen.', '/storybook-static/', '/dist/', '/.next/']
 
 /** Page, layout, and route files: the composition layer, held to the tighter limit. */
 function isOrchestration(file: string): boolean {

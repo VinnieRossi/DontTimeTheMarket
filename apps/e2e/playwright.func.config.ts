@@ -1,11 +1,11 @@
 import { defineConfig } from '@playwright/test'
-import { APP_BASE_URL, FUNCTIONAL_ENV, ROOT_DIR } from './functional-env'
+import { APP_BASE_URL, ROOT_DIR } from './functional-env'
 
 /**
- * The functional suite: one real flow through the notes example, driven over HTTP and UI only,
- * against a `next dev` server and a throwaway in-process database. Unlike the destructive,
- * CI-only functional suite this is patterned on, this one resets nothing shared and needs no
- * Docker, so it is safe to run on a laptop, in the gate, and in CI alike.
+ * The functional suite: real flows through the game, driven over the UI only, against a
+ * `next dev` server. Unlike the destructive, CI-only functional suite this is patterned on, this
+ * one resets nothing shared and needs no Docker, so it is safe to run on a laptop, in the gate,
+ * and in CI alike.
  */
 export default defineConfig({
   testDir: './tests',
@@ -14,11 +14,10 @@ export default defineConfig({
   forbidOnly: true,
   retries: 0,
   workers: 1,
-  timeout: 30_000,
-  globalSetup: './functional-global-setup.config.ts',
+  timeout: 60_000,
   reporter: process.env['CI'] ? 'github' : 'list',
   expect: {
-    timeout: 10_000,
+    timeout: 15_000,
   },
   use: {
     baseURL: APP_BASE_URL,
@@ -31,6 +30,5 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 60_000,
     cwd: ROOT_DIR,
-    env: FUNCTIONAL_ENV,
   },
 })

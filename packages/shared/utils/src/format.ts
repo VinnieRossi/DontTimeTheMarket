@@ -1,20 +1,35 @@
 /**
- * Presentation formatting shared by components and stories. It lives here rather than in the
- * component layer so a story, a test, and a page all render the same string, and so the
- * component layer keeps no logic of its own.
+ * Presentation formatting shared by the screens and their stories. It lives here rather than in
+ * the component layer so a story, a test, and the running app all render the same string, and so
+ * the component layer keeps no logic of its own.
  */
 
-/** A locale-independent calendar date, safe to render on both the server and the client. */
-export function formatIsoDate(value: Date): string {
-  const year = value.getUTCFullYear()
-  const month = String(value.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(value.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+/** Dollars, rounded to whole ones, with the sign in front of the symbol rather than after it. */
+export function formatMoney(value: number): string {
+  const sign = value < 0 ? '-' : ''
+  const magnitude = Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 })
+  return `${sign}$${magnitude}`
 }
 
-/** Shorten to `max` characters, ending in an ellipsis, without splitting mid-whitespace. */
-export function truncate(value: string, max: number): string {
-  if (max <= 0) return ''
-  if (value.length <= max) return value
-  return `${value.slice(0, max).trimEnd()}...`
+/** A percentage, to one decimal place, with an explicit plus on anything that is not negative. */
+export function formatSignedPercent(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+}
+
+/** A percentage, to one decimal place, with no sign added. */
+export function formatPercent(value: number): string {
+  return `${value.toFixed(1)}%`
+}
+
+/**
+ * Basis points, rounded to whole ones, signed. The score is reported in basis points rather than
+ * percent because the difference between a run and its benchmark is usually a fraction of one.
+ */
+export function formatBasisPoints(value: number): string {
+  return `${value >= 0 ? '+' : ''}${Math.round(value)} bps`
+}
+
+/** A share count, to two decimal places, because a dollar-sized buy rarely lands on a whole one. */
+export function formatShares(value: number): string {
+  return value.toFixed(2)
 }

@@ -2,7 +2,7 @@
   "name": "@dttm/hooks",
   "version": "0.0.0",
   "private": true,
-  "description": "React integration over the query layer: nothing but binding",
+  "description": "React integration over the engine: the reducer, the clock, and nothing else",
   "type": "module",
   "exports": {
     ".": {
@@ -17,9 +17,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@dttm/queries": "workspace:*",
-    "@dttm/types": "workspace:*",
-    "@tanstack/react-query": "^5.104.0"
+    "@dttm/engine": "workspace:*",
+    "@dttm/types": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19"

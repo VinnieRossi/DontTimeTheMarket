@@ -1,45 +1,53 @@
 # @dttm/e2e
 
 Playwright, two intentionally separate tracks. It imports no other `@dttm/*` package: both suites
-reach their target over HTTP and UI only, so a change here never has an internal shortcut to take.
+reach their target over the UI only, so a change here never has an internal shortcut to take.
 
 ## Visual regression (`playwright.config.ts`, `*.visual.ts`)
 
-`tests/app.visual.ts` covers the example feature's one screen; `tests/storybook.visual.ts` covers
-every Storybook story, discovered from the built story index rather than a hand-kept list, so a
-new story gets a baseline the first time someone runs `test:visual:update` after adding it. Both
-targets render from a fixed source (a freshly reset database, and stories from their own args), so
-a diff means something changed, not that the run got unlucky.
+Two projects, both on Chromium: a desktop window at 1280 and a phone at 390, which is the
+narrowest width the design targets. A second browser engine would be a second set of baselines to
+keep, and what is checked here is the layout rather than one vendor's rendering of it.
+
+`tests/app.visual.ts` covers the screens the app renders from its own code, which is the opening
+screen and only that: a run opens on a seeded random slice of history and then advances on a
+timer, so no two app-level screenshots of a game in progress would agree. The running game, the
+scoreboard, and every sheet are covered by `tests/storybook.visual.ts`, which screenshots every
+story from the built story index rather than a hand-kept list, at both widths, from fixed props.
+A new story gets a baseline the first time someone runs `test:visual:update` after adding it.
 
 Not part of `pnpm verify`: a screenshot diff is platform-specific, so it runs as its own CI job.
-Baselines are captured on that job's exact Linux runner, not on a contributor's own machine, the
-same way the suite this one is patterned on regenerates them in its fixed container. Update them by
-running the "Update visual baselines" GitHub Actions workflow (`workflow_dispatch`) against your
-branch, which runs `test:visual:update` on that runner and commits the result; running
-`pnpm test:visual:update` locally works for a quick check but its output should not be the one you
-commit, because a different OS renders text with different antialiasing.
+Baselines are captured on that job's exact Linux runner, not on a contributor's own machine.
+Update them by running the "Update visual baselines" GitHub Actions workflow (`workflow_dispatch`)
+against your branch, which runs `test:visual:update` on that runner and commits the result;
+running `pnpm test:visual:update` locally works for a quick check but its output should not be the
+one you commit, because a different operating system renders text with different antialiasing.
 
-**Adding a visual test:** a new app page goes in the `SCREENS` list in `tests/app.visual.ts`. A new
-story needs nothing added here at all; it is picked up the next time baselines are regenerated.
+**Adding a visual test:** a new app screen goes in the `SCREENS` list in `tests/app.visual.ts`,
+and only if it renders the same thing every time. A new story needs nothing added here at all.
+
+**A sheet in a story:** the sheets are fixed-position overlays, so a story that renders one gives
+it a full-height wrapper to open over. Without it the page has no height and the screenshot has
+nothing to measure.
 
 ## Functional e2e (`playwright.func.config.ts`, `*.func.ts`)
 
-One real flow through the notes example: create a note through the UI, confirm it survives a
-reload (so it is proven to persist, not just to render from client state), then drain the durable
-queue and confirm the job the creation enqueued completed. Runs against `next dev`, never a
-production build: `next start` forces `NODE_ENV=production`, and `resolveSessionReader` in
-`apps/web/src/server/session.ts` refuses to boot in that mode by design, since the template ships
-no real session reader.
+One real flow per file, driven through the UI the way a player drives it. `game.func.ts` opens a
+run, stops the clock, buys, watches the order fill on the following day, runs the market until a
+score is allowed, cashes out, and starts again. `indicators.func.ts` piles readouts onto the chart
+and checks that the screen reports how cluttered it has become.
 
-This is patterned on a suite that resets a shared local Postgres and kills a port before it runs,
-which makes it destructive locally and CI-only there. This one does neither: its database is a
-throwaway directory this package owns (`functional-global-setup.config.ts` clears it before every
-run), so it is exactly as safe on a laptop as it is in CI, and it runs inside `pnpm verify` rather
-than being gated on `process.env.CI`.
+Runs against `next dev` on a port of its own. There is nothing to reset between runs: the game is
+a deterministic simulation in the browser over data committed to this repository, so it has no
+database, no service to start, and no environment to configure. That is why it sits inside
+`pnpm verify` rather than being gated on `process.env.CI`.
 
-**Adding a functional test:** one flow per file under `tests/*.func.ts`. Test through HTTP and UI
-only, never by importing `apps/web` or another package's internals, so the suite keeps proving what
-a real caller can observe rather than what the code happens to do internally.
+**Adding a functional test:** one flow per file under `tests/*.func.ts`. Test through the UI only,
+never by importing a package's internals, so the suite keeps proving what a player can observe.
+
+**Waiting for the market:** drive the clock through the speed controls or the Step button rather
+than a fixed sleep. A run only becomes scorable after a minimum number of simulated days, and the
+button that unlocks then is the thing to wait on.
 
 ## Conventions
 

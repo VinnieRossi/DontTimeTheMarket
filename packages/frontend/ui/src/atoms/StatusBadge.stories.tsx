@@ -5,7 +5,7 @@ import { StatusBadge } from './StatusBadge'
 const meta = {
   title: 'Atoms/StatusBadge',
   component: StatusBadge,
-  args: { children: 'draft' },
+  args: { children: 'Full Terminal Mode' },
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof StatusBadge>
 
@@ -13,8 +13,8 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Neutral: Story = { args: { tone: 'neutral' } }
-export const Published: Story = { args: { tone: 'success', children: 'published' } }
+export const Neutral: Story = {}
+export const Info: Story = { args: { tone: 'info', children: 'Pretty Dense' } }
 
 export const EveryTone: Story = {
   render: () => (

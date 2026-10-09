@@ -2,7 +2,7 @@
   "name": "@dttm/e2e",
   "version": "0.0.0",
   "private": true,
-  "description": "Playwright: visual regression against the app and every Storybook story, functional e2e through the notes example",
+  "description": "Playwright: visual regression against the app and every Storybook story, functional e2e through a real run",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",

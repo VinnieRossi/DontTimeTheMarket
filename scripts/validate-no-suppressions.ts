@@ -30,7 +30,7 @@ const FORBIDDEN: readonly { pattern: RegExp; why: string }[] = [
 ]
 
 const CHECKED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.css']
-const EXEMPT = ['/drizzle/', '.gen.', 'scripts/validate-no-suppressions.ts']
+const EXEMPT = ['.gen.', 'scripts/validate-no-suppressions.ts']
 
 const staged = process.argv.includes('--staged')
 const candidates = filesToCheck(staged).filter(

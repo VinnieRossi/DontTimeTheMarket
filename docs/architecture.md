@@ -1,113 +1,146 @@
 # Architecture
 
-This is the architecture note every project generated from this template starts with.
-Rewrite the domain sections when you use the template; keep the layer rules.
+Don't Time The Market is a game about the gap between what trading feels like and what it
+returns.
+A player gets a randomized slice of real market history with the dates and the price level
+hidden, ten thousand dollars, and every lever a brokerage app would give them.
+At the end the run is scored against the Bogle NPC: a benchmark that bought the index on day one
+and then did nothing at all.
 
-## What this template is
+This note is what the rest of the repository routes back to.
+It carries the layer table, the rules that are stricter than the layers alone, and the decisions
+that shaped both.
 
-A monorepo skeleton for an AI-assisted project: strict TypeScript, a layered package graph, one validation gate, agent governance, and a single example feature that runs through every layer so new work has a pattern to copy.
+## What this is
 
-It installs, typechecks, lints, tests, builds, and builds Storybook with no external accounts, no real secrets, and no Docker.
-Every third-party capability defaults to an in-process fake, and the database-backed tests run against an in-process Postgres.
+A monorepo built from the ai-quickstart template: strict TypeScript, a layered package graph, one
+validation gate, agent governance, and a design system with a story and a test per component.
+
+It installs, typechecks, lints, tests, builds, and builds Storybook on a fresh clone, with no
+accounts, no secrets, no Docker, and no network access at runtime.
+The market history it plays against is committed to the repository rather than fetched.
+
+## The shape of the thing
+
+The whole game is one pure function.
+
+```
+startRun(seed, runLength)          -> the opening state
+step(state, action)                -> the next state
+```
+
+`step` reads no clock, no environment, and no random source.
+Every random draw it needs (where in history a run opens, which commentary line to show) advances
+a counter carried in the state itself, so the same seed and the same action sequence always
+produce the same run, down to the last cent.
+That is what makes a score verifiable by replay rather than by trust, and it is the one property
+every other decision here protects.
+
+The clock lives outside the engine, in `useGame`, which dispatches a `TICK` on an interval the
+player controls.
+The engine never schedules anything.
 
 ## Data flow
 
-The example feature is a note: a title, a body, and a status.
-It exists to be uninteresting, so the shape of the flow is the only thing worth reading.
-
 ```
-schema (notes table)
-    -> validation (one zod schema per input)
-    -> contract (typed routes over those schemas)
-    -> service (business rules, enqueues a durable job)
-    -> router handler (thin, authorizes, calls the service)
-    -> query function (typed client call)
-    -> hook (React integration)
-    -> page (composition only)
-    -> component (props in, callbacks out)
+baked market history (committed JSON)
+    -> engine: step(state, action), a pure reducer over a seeded state
+    -> hook: holds the state, owns the clock, dispatches actions
+    -> view mapping: a run becomes formatted strings and decided states
+    -> components: props in, callbacks out, no knowledge of the simulation
+    -> page: composition only
 ```
 
 Actions flow back up the same path.
-A note created in the UI reaches the service, which writes the row and enqueues a `note_created` job; the pipeline claims that job, runs its handler, and either completes it or retries it with backoff before dead-lettering it with an alert, or dead-letters it on the first attempt when the handler reports that no later attempt can succeed.
+A tap on Buy becomes a parsed trade, which becomes a pending order, which fills on the next
+simulated day at that day's price and never at the price that was on screen when it was placed.
 
 ## Domains
 
-One: notes.
-A real project replaces it.
-The point of keeping exactly one is that the example never becomes a second architecture to maintain alongside the real one.
-
-## External services
-
-Every external capability sits behind a port this repository owns, with a live adapter and an in-process fake:
-
-| Port | Fake | Live adapter |
-|---|---|---|
-| Queue | in-memory map, used by tests | Postgres outbox table |
-| Mail | records what was sent, asserted in tests | left unimplemented on purpose, wired by the project that needs it |
-| Clock | fixed instant, injected into every time-dependent path | system clock |
-
-`PROVIDER_MODE` selects between them.
-`mock` is the default so a fresh clone runs with an empty `.env`.
-`live` makes a capability with no real adapter a loud failure at boot rather than a silent fall back to a fake that drops work.
-
-Each provider has its own optional `<NAME>_PROVIDER_MODE` override (`MAIL_PROVIDER_MODE` today), which takes precedence over the global default when set and otherwise inherits it.
-This is what lets a project build incrementally, running one capability live while another is still mocked, without either the global switch or a code change standing in the way.
-In production, a provider may run mocked only when its own override says so explicitly: inheriting a mocked global default in production fails boot, naming the provider, and an explicit mock override in production logs one warning and shows up in the health endpoint's `mockedProviders` list.
-See `docs/adr/0005-per-provider-mode-override.md` for the full argument.
+One: a run.
+There is no second one, and there is no server-side domain at all, which is why this repository
+has no database, no API contract, and no backend packages.
+See `docs/adr/0003-no-server-side-domain.md`.
 
 ## Layers
 
 Imports flow downward only, and the check that enforces it runs in the gate.
-The band names follow the canonical layer vocabulary the architecture library defines.
 
 | Layer | Packages | May import |
 |---|---|---|
 | 5 Apps | `apps/web` | everything below |
-| 4 Application | `@dttm/ui`, `@dttm/hooks`, `@dttm/queries` | see the within-layer rules |
-| 3 Feature | `@dttm/services` | database, contracts, validation, types, logger, utils, env |
-| 2 Infrastructure | `@dttm/contracts`, `@dttm/providers`, `@dttm/auth` | foundation only |
-| 1 Foundation | `@dttm/config`, `@dttm/types`, `@dttm/logger`, `@dttm/env`, `@dttm/utils`, `@dttm/validation`, `@dttm/database`, `@dttm/theme` | see the within-layer rules |
+| 4 Application | `@dttm/ui`, `@dttm/hooks` | see the within-layer rules |
+| 3 Feature | `@dttm/engine` | types, utils |
+| 1 Foundation | `@dttm/config`, `@dttm/types`, `@dttm/utils`, `@dttm/validation`, `@dttm/theme` | validation may import types |
 
-Three rules are stricter than the band numbering alone implies, and each one is enforced by `pnpm validate:architecture` rather than by review:
+There is no Infrastructure band, because nothing in this project reaches outside itself: there is
+no vendor to put behind a port and no environment to read.
 
-- `@dttm/ui` may import `@dttm/types` and `@dttm/theme` only.
-  It may not import `@dttm/hooks` or `@dttm/queries`, even though all three sit in Application, because a component that reaches for data cannot be rendered from props alone.
-- `@dttm/queries` may not import `@dttm/services`.
-  Application reaches Feature only through the contract; the frontend calls an API, it does not invoke a service function.
-- Within Foundation, `@dttm/types` and `@dttm/validation` may import `@dttm/database` for type derivation.
-  Nothing else in Foundation imports anything internal.
+Two rules are stricter than the band numbering alone implies, and each is enforced by
+`pnpm validate:architecture` rather than by review:
+
+- `@dttm/ui` may import `@dttm/theme`, `@dttm/types`, `@dttm/utils`, and `@dttm/validation` only.
+  It may not import `@dttm/engine` or `@dttm/hooks`, even though ui and hooks sit in the same
+  band, because a component that reaches into the simulation cannot be rendered from props alone
+  and so cannot be rendered in a story.
+  Validation is the exception it may reach for, because a form and the rule its input has to
+  satisfy are the same rule, and writing it twice is how the two come to disagree.
+- `@dttm/engine` names no frontend package at all.
+  The simulation has to run with no screen attached for a replay to verify a score.
+
+A new package MUST be registered in `scripts/package-graph.ts` before it can depend on anything,
+because an unregistered package is a package nobody reviewed.
 
 ## Single source of truth
 
-The database schema owns the data model.
-Types are derived from it, the validation schemas are derived from those types where they describe stored data, and the contract is built from the validation schemas.
-No layer restates a type a lower layer already owns, and the architecture check fails a package that tries.
+The engine owns the model of a run.
+`GameState` is defined once, in `@dttm/engine`, and every rule about what a run is, costs, or
+scores lives beside it.
+Nothing downstream restates it: the view mapping in `apps/web` turns a state into strings, and
+the components take the strings.
+
+The presentation layer declares its own view types (`ChartSeriesView`, `FigureView`, and the
+rest) rather than importing the engine's.
+That is a deliberate second shape, and it is the only one: it is what keeps a component
+renderable from a story, and the compiler catches drift between the two at the one place they
+meet, which is the mapping in the app.
+
+## Where a rule lives
+
+- A rule about what a run costs or scores is in `@dttm/engine`, and it is tested there.
+- A rule about what a player may type is a schema in `@dttm/validation`, and the form and the
+  order both parse with it.
+- A decision about what something looks like is a token in `@dttm/theme`.
+  Components resolve tokens through class names; the one component that cannot is the chart,
+  because a canvas takes a color string rather than reading a stylesheet, so it reads the tokens
+  it needs at runtime.
+- Copy that changes with the state of a run is written in the view mapping, beside the decision
+  that chooses it.
 
 ## The gate
 
 One command runs every check: `pnpm verify`.
-Pre-commit runs its staged subset, pre-push runs it whole, and CI runs the same command on a clean checkout.
+Pre-commit runs its staged subset, pre-push runs it whole, and CI runs the same command on a
+clean checkout.
 There is one definition of passing, so "green locally" and "green in CI" mean the same thing.
+
+Visual regression is the one check outside it: a screenshot diff is platform-specific, so it runs
+as its own CI job against baselines captured on that job's runner.
+`apps/e2e/AGENTS.md` says how a diff there gets resolved.
 
 ### Why the agent permissions have no confirmation list
 
-The checked-in agent settings allow the everyday development commands, deny the handful that cannot be undone, and ask about nothing.
+The checked-in agent settings allow the everyday development commands, deny the handful that
+cannot be undone, and ask about nothing.
+See `docs/adr/0002-no-confirmation-prompts-in-the-agent-permissions.md` for the argument.
 
-That is deliberate, and it follows from two things.
-A confirmation prompt a session hits many times a day gets approved without being read, which makes it no safer than an allowance while still costing a person their attention; and a prompt nobody is awake to answer stalls an unattended run or is auto-denied, which is worse than either outcome.
+## Known gaps
 
-What actually protects the repository runs whether or not anyone is watching: the commit-message hook rejects a verification bypass, the pre-commit and pre-push hooks run the gate, the `PreToolUse` guard blocks a force push, a hard reset, a recursive delete, and a push to the default branch before the command executes, and branch protection requires the gate to pass before anything merges.
-Those are enforcement. A prompt is a request.
-
-A project that does want a person in the loop at the commit boundary should put that rule in its own untracked local settings rather than in the template, so an agent working the repository unattended is not blocked by a question nobody will answer.
-
-## Deliberate deviations
-
-Three choices differ from what the architecture library's reference layer names, each for a stated reason.
-The ADRs under `docs/adr/` carry the full argument.
-
-- The ORM is Drizzle rather than Prisma, because the template has to run its database-backed tests in-process with no Docker and no hosted database, and Drizzle runs directly against PGlite while keeping a single authoritative schema, derived types, and versioned SQL migrations.
-- The API contract library is oRPC rather than ts-rest.
-  Both satisfy the requirement that the contract is the one definition both sides consume.
-- There is no live mail adapter or session reader.
-  Shipping a vendor SDK nobody selected would pick a provider for the project rather than leaving the choice where it belongs, so the port and its fake ship and boot refuses in live mode or production until the project wires a real one.
+- **No persistence.** A run exists while the tab is open and is gone when it closes. Scores are
+  not saved anywhere, which is also why the game says so on its own opening screen.
+- **No error tracking.** Nothing here reports an unhandled exception anywhere; add Sentry or an
+  equivalent once there is a production deployment to watch.
+- **Branch protection.** The CI workflow runs on every pull request, but nothing in this
+  repository can require it to pass before a merge; configure that in the repository settings.
+- **One mode.** Index mode only: one instrument, one benchmark. The engine models a benchmark
+  generically, so a second one is a new entry in a list rather than a change to the reducer.

@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
+import { GameApp } from '@/components/game-app'
 
-/** The example feature is the only screen, so the root goes straight to it. */
+/** A page composes. Everything it shows lives in a package that can be rendered without it. */
 export default function HomePage() {
-  redirect('/notes')
+  return <GameApp />
 }

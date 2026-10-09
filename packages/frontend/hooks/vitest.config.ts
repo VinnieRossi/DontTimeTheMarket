@@ -11,7 +11,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       // Test support is scaffolding for the tests rather than shipped behavior.
-      exclude: ['src/**/*.test.tsx', 'src/index.ts', 'src/test-support.tsx'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/index.ts'],
       thresholds,
     },
   },

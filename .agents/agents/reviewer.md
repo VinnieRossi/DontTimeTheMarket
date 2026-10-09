@@ -26,9 +26,9 @@ what you checked, not what you glanced at.
 
 - Does the change do what was asked, all of it, and nothing extra?
 - Does it respect the layer direction, and is every new dependency registered?
-- Does it derive types from the schema rather than restating them?
-- Is every external input parsed at the boundary?
-- Is every permission enforced on the server, regardless of what the interface hides?
+- Does the model of a run stay owned by the engine rather than being restated downstream?
+- Is every external input parsed at the boundary by the schema that also produces its type?
+- Does the engine still read no clock, no environment, and no random source?
 - Are the tests asserting behavior a caller can observe, and do they cover the failure paths?
 - Is there an escape hatch out of the type system, a silenced rule, or a deferred-work marker?
 

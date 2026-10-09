@@ -3,41 +3,22 @@ import { describe, expect, it } from 'vitest'
 import { PageShell } from './PageShell'
 
 describe('PageShell', () => {
-  it('renders the title as the page heading, and the content inside the main region', () => {
+  it('shows the name in the corner and the screen under it', () => {
     render(
-      <PageShell title="Notes">
-        <p>Content</p>
+      <PageShell brand="Don't Time The Market">
+        <p>Screen</p>
       </PageShell>
     )
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Notes' })).toBeInTheDocument()
-    expect(screen.getByRole('main')).toHaveTextContent('Content')
+    expect(screen.getByText("Don't Time The Market")).toBeVisible()
+    expect(screen.getByRole('main')).toContainElement(screen.getByText('Screen'))
   })
 
-  it('shows a description when there is one', () => {
+  it('can run a narrower column, for the screens that open and close a run', () => {
     render(
-      <PageShell title="Notes" description="Everything written down so far.">
-        <p>Content</p>
+      <PageShell brand="Don't Time The Market" narrow>
+        <p>Screen</p>
       </PageShell>
     )
-    expect(screen.getByText('Everything written down so far.')).toBeInTheDocument()
-  })
-
-  it('renders no description element when there is none', () => {
-    const { container } = render(
-      <PageShell title="Notes">
-        <p>Content</p>
-      </PageShell>
-    )
-    expect(container.querySelector('.app-page__description')).toBeNull()
-  })
-
-  it('renders the primary action beside the title', () => {
-    render(
-      <PageShell title="Notes" actions={<button type="button">New note</button>}>
-        <p>Content</p>
-      </PageShell>
-    )
-    expect(screen.getByRole('button', { name: 'New note' })).toBeInTheDocument()
+    expect(screen.getByRole('main').className).toContain('app-page__body--narrow')
   })
 })

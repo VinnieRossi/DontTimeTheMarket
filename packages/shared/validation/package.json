@@ -2,7 +2,7 @@
   "name": "@dttm/validation",
   "version": "0.0.0",
   "private": true,
-  "description": "Input schemas shared by the API boundary and the forms that feed it",
+  "description": "Input schemas: every number a player types is parsed by one of these",
   "type": "module",
   "exports": {
     ".": {
@@ -17,7 +17,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@dttm/database": "workspace:*",
+    "@dttm/types": "workspace:*",
     "zod": "^4.6.5"
   },
   "devDependencies": {

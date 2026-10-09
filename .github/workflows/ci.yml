@@ -75,37 +75,3 @@ jobs:
           name: playwright-visual-report
           path: apps/e2e/playwright-report/
           retention-days: 14
-
-  migrations:
-    name: Migrations apply to an empty database
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      # Catches the change that edited the schema and forgot to generate the migration: the
-      # generator would write one here, and a non-empty diff afterward means the committed
-      # migrations no longer describe the schema.
-      - name: The committed migrations match the schema
-        run: |
-          pnpm db:generate
-          if ! git diff --quiet -- packages/backend/database/drizzle; then
-            echo "The schema changed without a migration. Run pnpm db:generate and commit the result."
-            git diff --stat -- packages/backend/database/drizzle
-            exit 1
-          fi
-
-      # The database tests run against a fresh in-process Postgres, so this proves every committed
-      # migration applies to an empty database rather than only to one that already existed.
-      - name: Migrations apply cleanly
-        run: pnpm --filter @dttm/database test

@@ -15,7 +15,6 @@
       "!**/coverage",
       "!**/storybook-static",
       "!**/.turbo",
-      "!**/drizzle/meta",
       "!**/*.gen.ts",
       "!pnpm-lock.yaml"
     ]
@@ -90,6 +89,7 @@
         "**/next.config.*",
         "**/*.d.ts",
         "**/app/**/{page,layout,loading,error,not-found,route,template,default}.tsx",
+        "**/app/**/{icon,apple-icon,opengraph-image,twitter-image}.tsx",
         "**/app/**/{page,layout,route}.ts"
       ],
       "linter": {
@@ -101,7 +101,7 @@
       }
     },
     {
-      "includes": ["scripts/**", "packages/shared/logger/src/**", "**/*.test.ts", "**/*.test.tsx"],
+      "includes": ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
       "linter": {
         "rules": {
           "suspicious": {
