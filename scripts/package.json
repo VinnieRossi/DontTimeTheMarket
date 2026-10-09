@@ -1,0 +1,19 @@
+{
+  "name": "@dttm/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The verification gate and the repository validators it runs",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@types/node": "^26.6.3",
+    "@vitest/coverage-v8": "^5.0.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

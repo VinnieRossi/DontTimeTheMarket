@@ -1,0 +1,8 @@
+{
+  "extends": "@dttm/config/tsconfig/base",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["tests/**/*.ts", "*.ts"],
+  "exclude": ["node_modules", "visual-baselines", "test-results", "playwright-report"]
+}

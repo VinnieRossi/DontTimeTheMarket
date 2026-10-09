@@ -1,0 +1,32 @@
+{
+  "name": "@dttm/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The API contract, the provider port interfaces, and the durable job contract",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dttm/database": "workspace:*",
+    "@dttm/types": "workspace:*",
+    "@dttm/validation": "workspace:*",
+    "@orpc/contract": "^1.15.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@vitest/coverage-v8": "^5.0.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

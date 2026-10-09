@@ -1,0 +1,14 @@
+packages:
+  - "apps/*"
+  - "packages/*/*"
+  - "scripts"
+
+# Only these dependencies may run install scripts. Anything else is blocked, because an
+# install script is arbitrary code running on every clone and in CI.
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - '@tanstack/query-core@5.104.0'
+  - '@tanstack/react-query@5.104.0'

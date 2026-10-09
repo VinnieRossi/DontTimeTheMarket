@@ -1,0 +1,34 @@
+{
+  "name": "@dttm/providers",
+  "version": "0.0.0",
+  "private": true,
+  "description": "An implementation and an in-process fake for every port, and the factory that selects between them",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dttm/contracts": "workspace:*",
+    "@dttm/database": "workspace:*",
+    "@dttm/env": "workspace:*",
+    "@dttm/logger": "workspace:*",
+    "@dttm/types": "workspace:*",
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@types/node": "^26.6.3",
+    "@vitest/coverage-v8": "^5.0.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

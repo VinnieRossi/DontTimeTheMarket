@@ -3,20 +3,109 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The workflow reads the repository and nothing else. A job that needs more says so itself.
+permissions:
+  contents: read
 
 jobs:
   verify:
+    name: Verify
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
         with:
-          node-version: 24.18.0
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
+          # The validators inspect every tracked file, so they need the tree rather than a shallow
+          # slice of it.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # One command, the same one the hooks run, so passing here and passing locally cannot come to
+      # mean different things. It covers lint, the repository validators, typecheck, the tests with
+      # their coverage thresholds, the app build, the Storybook build, and the functional Playwright
+      # suite (which installs its own Chromium as one of its steps).
+      - name: Verify
+        run: pnpm verify
+
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browsers
+        run: pnpm e2e:install-browsers
+
+      # Screenshots are platform-specific, so this stays out of `pnpm verify` and runs as its own
+      # job against the baselines committed under `apps/e2e/visual-baselines/`, captured on this
+      # same runner image. See `apps/e2e/AGENTS.md` for how a real diff here gets resolved.
+      - name: Visual regression
+        run: pnpm test:visual
+
+      - name: Upload diff report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-visual-report
+          path: apps/e2e/playwright-report/
+          retention-days: 14
+
+  migrations:
+    name: Migrations apply to an empty database
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Catches the change that edited the schema and forgot to generate the migration: the
+      # generator would write one here, and a non-empty diff afterward means the committed
+      # migrations no longer describe the schema.
+      - name: The committed migrations match the schema
+        run: |
+          pnpm db:generate
+          if ! git diff --quiet -- packages/backend/database/drizzle; then
+            echo "The schema changed without a migration. Run pnpm db:generate and commit the result."
+            git diff --stat -- packages/backend/database/drizzle
+            exit 1
+          fi
+
+      # The database tests run against a fresh in-process Postgres, so this proves every committed
+      # migration applies to an empty database rather than only to one that already existed.
+      - name: Migrations apply cleanly
+        run: pnpm --filter @dttm/database test

@@ -1,0 +1,5 @@
+if grep -qiE '\[skip[ -]?ci\]|--no-verify|^WIP' "$1"; then
+  echo "Commit message contains a forbidden marker (skip-ci, no-verify, or WIP)."
+  exit 1
+fi
+pnpm exec commitlint --edit "$1"

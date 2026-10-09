@@ -1,0 +1,28 @@
+{
+  "name": "@dttm/auth",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The role hierarchy, the permission checks, and the session port",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dttm/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@vitest/coverage-v8": "^5.0.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

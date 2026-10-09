@@ -1,0 +1,8 @@
+.next/
+next-env.d.ts
+.data/
+
+# `next dev` writes these on every boot (generate-agent-files.js). This app's real instructions
+# live at the repository root; these are Next's own generated notes about itself, not ours.
+AGENTS.md
+CLAUDE.md

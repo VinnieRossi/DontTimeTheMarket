@@ -1,0 +1,186 @@
+name: Claude code review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pre-check:
+    name: Decide whether to review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      should_review: ${{ steps.decide.outputs.should_review }}
+      pr_number: ${{ steps.decide.outputs.pr_number }}
+      skip_reason: ${{ steps.decide.outputs.skip_reason }}
+    steps:
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          IS_PR_COMMENT: ${{ github.event.issue.pull_request != null }}
+          PR_FROM_EVENT: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          should_review=true
+          skip_reason=""
+          pr_number="$PR_FROM_EVENT"
+
+          # A comment only triggers a review when it asks for one.
+          if [ "$EVENT" = "issue_comment" ]; then
+            if [ "$IS_PR_COMMENT" != "true" ]; then
+              should_review=false
+              skip_reason="the comment is not on a pull request"
+            elif [[ "$COMMENT_BODY" != *"@claude-review"* ]]; then
+              should_review=false
+              skip_reason="the comment does not ask for a review"
+            fi
+          fi
+
+          if [ "$should_review" = "true" ] && [ -n "$pr_number" ]; then
+            pr=$(gh pr view "$pr_number" --repo "$REPO" --json isDraft,author,additions,deletions,changedFiles)
+            draft=$(echo "$pr" | jq -r '.isDraft')
+            author=$(echo "$pr" | jq -r '.author.login')
+            files=$(echo "$pr" | jq -r '.changedFiles')
+            lines=$(echo "$pr" | jq -r '.additions + .deletions')
+
+            # A draft is not finished, a bot's change was not written by a person, and a review
+            # that cannot hold the diff in view produces a summary rather than a review.
+            if [ "$draft" = "true" ]; then
+              should_review=false
+              skip_reason="the pull request is a draft"
+            elif [[ "$author" == *"[bot]" ]]; then
+              should_review=false
+              skip_reason="the pull request came from $author"
+            elif [ "$files" -gt 80 ]; then
+              should_review=false
+              skip_reason="the pull request changes $files files, past what one review can hold"
+            elif [ "$lines" -gt 6000 ]; then
+              should_review=false
+              skip_reason="the pull request changes $lines lines, past what one review can hold"
+            fi
+          fi
+
+          {
+            echo "should_review=$should_review"
+            echo "pr_number=$pr_number"
+            echo "skip_reason=$skip_reason"
+          } >> "$GITHUB_OUTPUT"
+
+  review:
+    name: Review
+    needs: pre-check
+    if: needs.pre-check.outputs.should_review == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Review the change
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this pull request against the rules this repository actually enforces. Assume
+            the change is wrong until you find the specific reason to believe otherwise, and say
+            what you checked rather than what you glanced at.
+
+            REPO: ${{ github.repository }}
+            PR: ${{ needs.pre-check.outputs.pr_number }}
+
+            ## Read first
+            1. AGENTS.md, which is the canonical statement of the rules.
+            2. docs/architecture.md, for the layer table and the three rules stricter than it.
+            3. The diff: gh pr diff ${{ needs.pre-check.outputs.pr_number }}
+            4. The gate result: gh pr checks ${{ needs.pre-check.outputs.pr_number }}
+
+            ## What to check
+
+            Architecture. Does every import flow downward? Is a new package registered in the
+            dependency allowlist? Does presentation reach for data, or a query reach past the
+            contract into a service?
+
+            Single source of truth. Is a type restated that the schema already derives? Is a
+            validation rule written twice?
+
+            Boundaries. Is external input parsed at the boundary by the schema that also produces
+            its type? Does a vendor type or a vendor error escape a provider? Is a permission
+            enforced on the server regardless of what the interface hides?
+
+            Failure paths. Can work be dropped without a trace? Is an error swallowed, or returned
+            where the caller can forget to check it? Does a handler invent its own error shape?
+
+            Tests. Do they assert what a caller can observe, or internal state? Do they cover the
+            failure paths, not only the success path? Is anything skipped, marked only, or left as
+            a placeholder?
+
+            Writing. Long dashes and British spellings are blocked by the gate; flag any that
+            reached the diff anyway, along with prose that reads as generated rather than written.
+
+            ## Rules for the review itself
+
+            A finding names a file, a line, what is wrong, and what to do about it. A finding you
+            cannot point at is not a finding. If CI is red, that is the first thing to say.
+
+            Post the review with:
+            gh pr comment ${{ needs.pre-check.outputs.pr_number }} --body "..."
+
+            End it with a verdict on its own line, in exactly one of these forms:
+
+            **Verdict: APPROVE**
+            **Verdict: REQUEST-CHANGES**
+            **Verdict: REJECT**
+
+            Use REQUEST-CHANGES when specific fixes settle it, and REJECT when the approach itself
+            needs rethinking rather than patching. Prose that reads like an approval is not a
+            verdict.
+          claude_args: |
+            --model opus
+            --max-turns 20
+            --allowedTools "Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Read,Glob,Grep"
+
+  explain-skip:
+    name: Say why no review ran
+    needs: pre-check
+    if: >-
+      needs.pre-check.outputs.should_review == 'false' &&
+      needs.pre-check.outputs.skip_reason != '' &&
+      !contains(needs.pre-check.outputs.skip_reason, 'draft') &&
+      !contains(needs.pre-check.outputs.skip_reason, 'not on a pull request') &&
+      !contains(needs.pre-check.outputs.skip_reason, 'does not ask')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ needs.pre-check.outputs.pr_number }}
+          REASON: ${{ needs.pre-check.outputs.skip_reason }}
+        run: |
+          gh pr comment "$PR" --repo "$REPO" --body "No automated review ran: $REASON.
+
+          Comment \`@claude-review\` to ask for one anyway."

@@ -1,0 +1,63 @@
+/*
+ * The design tokens. This is the only file in the repository where a raw color, length, or font
+ * value is written, which is what makes a change to any of them a one-line change rather than a
+ * search. Components reach them through these custom properties and never restate a value.
+ *
+ * Replace these values with a real project's palette and scale. Keep the names: every component
+ * resolves against them, so renaming one is a change to every component that used it.
+ */
+:root {
+  /* Surfaces and text */
+  --app-bg: #ffffff;
+  --app-surface: #f6f7f9;
+  --app-surface-raised: #ffffff;
+  --app-border: #dfe3e8;
+  --app-ink: #16191d;
+  --app-ink-muted: #5c6672;
+  --app-ink-inverse: #ffffff;
+
+  /* Accents, one per semantic tone */
+  --app-tone-neutral: #5c6672;
+  --app-tone-info: #1f5fbf;
+  --app-tone-success: #1d7a4c;
+  --app-tone-warning: #8a5a00;
+  --app-tone-danger: #b3261e;
+  --app-tone-neutral-soft: #eceff3;
+  --app-tone-info-soft: #e4edfb;
+  --app-tone-success-soft: #e3f2ea;
+  --app-tone-warning-soft: #faf0dc;
+  --app-tone-danger-soft: #fae9e7;
+
+  /* Focus, for a visible ring that meets contrast without relying on the browser default */
+  --app-focus: #1f5fbf;
+
+  /* Spacing, on a scale rather than ad hoc */
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 24px;
+  --app-space-6: 32px;
+
+  /* Radii */
+  --app-radius-sm: 4px;
+  --app-radius: 8px;
+  --app-radius-pill: 999px;
+
+  /* Type */
+  --app-font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --app-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --app-text-xs: 12px;
+  --app-text-sm: 14px;
+  --app-text-md: 16px;
+  --app-text-lg: 20px;
+  --app-text-xl: 28px;
+  --app-leading-tight: 1.2;
+  --app-leading-normal: 1.5;
+  --app-weight-regular: 400;
+  --app-weight-medium: 500;
+  --app-weight-bold: 700;
+
+  /* Elevation */
+  --app-shadow: 0 1px 2px rgb(22 25 29 / 8%), 0 2px 8px rgb(22 25 29 / 6%);
+}

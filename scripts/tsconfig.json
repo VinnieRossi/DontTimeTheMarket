@@ -1,0 +1,10 @@
+{
+  "extends": "@dttm/config/tsconfig/base",
+  "compilerOptions": {
+    "types": ["node"],
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "../.claude/hooks/**/*.ts"],
+  "exclude": ["node_modules"]
+}

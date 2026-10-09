@@ -1,0 +1,44 @@
+{
+  "name": "@dttm/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The web app: routing, composition, and the server wiring",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run"
+  },
+  "dependencies": {
+    "@dttm/auth": "workspace:*",
+    "@dttm/contracts": "workspace:*",
+    "@dttm/database": "workspace:*",
+    "@dttm/env": "workspace:*",
+    "@dttm/hooks": "workspace:*",
+    "@dttm/logger": "workspace:*",
+    "@dttm/providers": "workspace:*",
+    "@dttm/queries": "workspace:*",
+    "@dttm/services": "workspace:*",
+    "@dttm/theme": "workspace:*",
+    "@dttm/types": "workspace:*",
+    "@dttm/ui": "workspace:*",
+    "@dttm/utils": "workspace:*",
+    "@orpc/client": "^1.15.4",
+    "@orpc/server": "^1.15.4",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@dttm/providers": "workspace:*",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}

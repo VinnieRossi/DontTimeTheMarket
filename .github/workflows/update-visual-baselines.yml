@@ -1,0 +1,46 @@
+name: Update visual baselines
+
+# Screenshots are platform-specific, so a baseline captured on a contributor's own machine drifts
+# from what the "Visual regression" job renders. This regenerates them on the same runner image
+# that job uses, and commits the result back to the branch that asked for it.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    name: Regenerate baselines on this runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browsers
+        run: pnpm e2e:install-browsers
+
+      - name: Regenerate baselines
+        run: pnpm test:visual:update
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/e2e/visual-baselines
+          if git diff --cached --quiet; then
+            echo "No baseline changes."
+          else
+            git commit -m "chore(e2e): regenerate visual baselines"
+            git push
+          fi
