@@ -58,9 +58,10 @@ export function TradeSheet({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(19,34,53,.4)]" onClick={onClose}>
       <div
-        className="bg-card max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-[22px] p-5"
+        className="bg-card flex max-h-[90dvh] w-full max-w-lg flex-col rounded-t-[22px]"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="min-h-0 flex-1 overflow-y-auto p-5">
         <div className="bg-line mx-auto mb-4 h-1 w-10 rounded-full" />
         <h3 className="font-display text-lg font-bold">Trade</h3>
 
@@ -123,13 +124,6 @@ export function TradeSheet({
                 className="border-line mt-2 w-full rounded-xl border-[1.5px] px-3 py-2.5 text-sm"
               />
             )}
-            <button
-              type="button"
-              onClick={submitBuy}
-              className="bg-up mt-4 w-full rounded-full py-3.5 text-sm font-bold text-white"
-            >
-              Buy
-            </button>
           </div>
         ) : (
           <div>
@@ -174,13 +168,6 @@ export function TradeSheet({
                 className="border-line mt-2 w-full rounded-xl border-[1.5px] px-3 py-2.5 text-sm"
               />
             )}
-            <button
-              type="button"
-              onClick={submitSell}
-              className="bg-down mt-4 w-full rounded-full py-3.5 text-sm font-bold text-white"
-            >
-              Sell
-            </button>
           </div>
         )}
 
@@ -209,13 +196,24 @@ export function TradeSheet({
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="border-accent text-accent mt-4 w-full rounded-full border-[1.5px] bg-white py-3.5 text-sm font-bold"
-        >
-          Close
-        </button>
+        </div>
+
+        <div className="border-line shrink-0 border-t px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={tab === "buy" ? submitBuy : submitSell}
+            className={`block w-full rounded-full py-3.5 text-sm font-bold text-white ${tab === "buy" ? "bg-up" : "bg-down"}`}
+          >
+            {tab === "buy" ? "Buy" : "Sell"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="border-accent text-accent mt-2.5 block w-full rounded-full border-[1.5px] bg-white py-3.5 text-sm font-bold"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
