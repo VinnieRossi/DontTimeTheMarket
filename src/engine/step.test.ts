@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BOGLE_NPC_ID } from "./npc";
 import { step } from "./step";
 import { canCashOut, edgeBpsVs, elapsedDays, playerValue } from "./selectors";
-import { MIN_SCORING_DAYS, STARTING_CASH, type GameState } from "./types";
+import { DIVIDEND_PERIOD_DAYS, MIN_SCORING_DAYS, STARTING_CASH, type GameState } from "./types";
 
 function freshRun(seed = 12345): GameState {
   return step({} as GameState, {
@@ -203,6 +203,42 @@ describe("cash out and continue gating", () => {
       expect(after.phase).toBe("ended");
       expect(after.horizonDays).toBe(state.horizonDays);
     }
+  });
+});
+
+describe("dividends", () => {
+  it("reinvested dividends are tracked as lots, so a later full sell taxes their gain too", () => {
+    let state = freshRun(1);
+    state = step(state, { type: "SET_SETTING", key: "reinvestDividends", value: true });
+    state = step(state, {
+      type: "PLACE_ORDER",
+      order: { side: "buy", orderType: "market", amountUsd: 10000 },
+    });
+    state = step(state, { type: "TICK" });
+    const sharesAfterBuy = state.shares;
+    expect(sharesAfterBuy).toBeGreaterThan(0);
+
+    // Any run of DIVIDEND_PERIOD_DAYS + 1 ticks is guaranteed to cross at
+    // least one dividend payment, since the payment day is `day %
+    // DIVIDEND_PERIOD_DAYS === 0`.
+    state = tickN(state, DIVIDEND_PERIOD_DAYS + 1);
+    expect(state.shares).toBeGreaterThan(sharesAfterBuy);
+
+    // The bug this guards against: reinvested dividend shares were added
+    // to state.shares without a matching Lot, so state.shares would drift
+    // above the sum of tracked lot quantities.
+    const lotQty = state.lots.reduce((sum, lot) => sum + lot.qty, 0);
+    expect(lotQty).toBeCloseTo(state.shares, 6);
+
+    state = step(state, {
+      type: "PLACE_ORDER",
+      order: { side: "sell", orderType: "market", qty: state.shares },
+    });
+    state = step(state, { type: "TICK" });
+
+    expect(state.shares).toBeCloseTo(0, 6);
+    expect(state.lots).toHaveLength(0);
+    expect(state.taxPaid).toBeGreaterThan(0);
   });
 });
 
