@@ -15,8 +15,9 @@ import { useEffect, useRef } from "react";
 /** Arbitrary fixed epoch used only to give lightweight-charts a real
  * timestamp to plot against. Elapsed day N is always rendered as
  * BASE_TIMESTAMP + N days; the calendar date this actually lands on is
- * never shown anywhere in the UI, which is what keeps the real run
- * dates hidden from the player (see report.md section 2). */
+ * never shown anywhere in the UI, which keeps the real run dates hidden
+ * from the player so they cannot recognize the historical period (e.g.
+ * 2008 or 2020) and play to the outcome they already know happened. */
 const BASE_TIMESTAMP = Date.UTC(2000, 0, 3) / 1000;
 const SECONDS_PER_DAY = 86400;
 

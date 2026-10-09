@@ -9,7 +9,9 @@ const WINDOW_DAYS = 180;
 /** Builds the market-price line, the player value line, the Bogle NPC
  * value line, any active moving-average/Bollinger overlays, and the
  * buy/sell trade markers for the chart, all rebased to start at 100 so
- * the real absolute price level stays hidden (report.md section 2). */
+ * the real absolute price level stays hidden - a player should judge
+ * the shape of the move, not recognize the actual index level and infer
+ * which historical period they are playing. */
 export function buildChartData(state: GameState): {
   lines: ChartLine[];
   markers: ChartMarker[];

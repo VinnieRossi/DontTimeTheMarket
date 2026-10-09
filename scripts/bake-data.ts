@@ -5,9 +5,7 @@
  * FRED's public CSV endpoint (fred.stlouisfed.org/graph/fredgraph.csv),
  * which needs no API key and no account. Output is written to
  * data/baked/*.json and committed to the repo; the deployed app never
- * calls FRED at runtime. See report.md section 5 for the sourcing
- * rationale and the evidence that this endpoint is reachable without
- * a key.
+ * calls FRED at runtime.
  *
  * Re-run this script manually (e.g. quarterly) to refresh the baked data;
  * it is not wired into any CI job or runtime path.

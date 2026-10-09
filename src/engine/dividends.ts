@@ -4,6 +4,7 @@ import {
   DIVIDEND_TAX_RATE,
   INDEX_DIVIDEND_YIELD,
   type GameState,
+  type Lot,
 } from "./types";
 
 /** The index pays a simulated quarterly dividend based on a flat,
@@ -23,10 +24,14 @@ export function processDividends(state: GameState): GameState {
 
   let cash = state.cash;
   let shares = state.shares;
+  let lots = state.lots;
   const playerDividend = quarterlyAmount * shares * taxMultiplier;
   if (playerDividend > 0) {
     if (state.settings.reinvestDividends) {
-      shares += playerDividend / price;
+      const qty = playerDividend / price;
+      shares += qty;
+      const newLot: Lot = { qty, cost: price, day: state.day };
+      lots = [...lots, newLot];
     } else {
       cash += playerDividend;
     }
@@ -38,5 +43,5 @@ export function processDividends(state: GameState): GameState {
     return { ...npc, shares: npc.shares + dividend / price };
   });
 
-  return { ...state, cash, shares, npcs };
+  return { ...state, cash, shares, lots, npcs };
 }

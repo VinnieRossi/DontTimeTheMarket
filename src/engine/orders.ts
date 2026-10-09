@@ -92,10 +92,10 @@ export function executeSell(state: GameState, qtyToSell: number): GameState {
 
 /** Processes every pending order against the current day's price,
  * executing whichever ones trigger and keeping the rest queued. Market
- * orders always trigger on the next tick after they are placed, which
- * is the one-day settlement lag described in report.md: a player reacts
- * to yesterday's close by trading at today's price, never at the exact
- * price they were looking at when they clicked. */
+ * orders always trigger on the next tick after they are placed, giving a
+ * one-day settlement lag: a player reacts to yesterday's close by trading
+ * at today's price, never at the exact price they were looking at when
+ * they clicked. */
 export function processPendingOrders(state: GameState): GameState {
   const price = currentPrice(state);
   let next = state;

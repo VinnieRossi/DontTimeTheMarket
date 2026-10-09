@@ -38,8 +38,9 @@ export function cagr(state: GameState, value: number): number {
   return Math.pow(Math.max(value, 1) / STARTING_CASH, 1 / years) - 1;
 }
 
-/** Annualized outperformance versus a given NPC, in basis points. This is
- * the leaderboard metric from report.md's "Scoring" section. */
+/** Annualized outperformance versus a given NPC, in basis points. CAGR
+ * normalizes for runs of different lengths, so this is the leaderboard
+ * metric: it stays comparable whether a run lasted one year or ten. */
 export function edgeBpsVs(state: GameState, npcId: string): number {
   return (
     (cagr(state, playerValue(state)) - cagr(state, npcValue(state, npcId))) *
@@ -50,9 +51,9 @@ export function edgeBpsVs(state: GameState, npcId: string): number {
 /** A plain running percentage gap, safe to show live during a run. The
  * annualized edge figure blows up to nonsensical magnitudes over very
  * short elapsed-day counts (raising a small early difference to a large
- * power), so the UI shows this instead until a run actually ends; see
- * the design-report evidence for why canCashOut() gates on the same
- * minimum sample. */
+ * power), so the UI shows this instead until a run actually ends - the
+ * same small-sample problem is why canCashOut() below gates cashing out
+ * on a minimum number of elapsed days. */
 export function runningGapPctVs(state: GameState, npcId: string): number {
   const nv = npcValue(state, npcId);
   if (nv <= 0) return 0;

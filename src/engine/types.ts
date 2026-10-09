@@ -19,8 +19,7 @@ export const MIN_SCORING_DAYS = 42;
 export const IDLE_CASH_FALLBACK_APY = 0.02;
 /** Illustrative annualized dividend yield for the index. FRED has no
  * free, no-key, per-day dividend-yield series for the Nasdaq Composite,
- * so this is a flat, disclosed approximation rather than fetched data;
- * see report.md section 5 for the sourcing evidence this is built on. */
+ * so this is a flat, disclosed approximation rather than fetched data. */
 export const INDEX_DIVIDEND_YIELD = 0.018;
 export const DIVIDEND_PERIOD_DAYS = 63;
 

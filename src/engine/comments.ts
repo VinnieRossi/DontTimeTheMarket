@@ -1,6 +1,6 @@
 import { BOGLE_NPC_ID } from "./npc";
 import { nextRandom, nextInt } from "./rng";
-import { edgeBpsVs, elapsedDays, currentPrice, playerValue } from "./selectors";
+import { edgeBpsVs, elapsedDays, currentPrice } from "./selectors";
 import type { GameState } from "./types";
 
 /**
@@ -57,17 +57,5 @@ export function maybeUpdateCommentary(state: GameState): GameState {
     rngState: picked.state,
     lastCommentDay: elapsedDays(state),
     commentaryKey: pool[picked.value]!,
-  };
-}
-
-/** Exported for completeness / potential future use (e.g. a results
- * screen summary); not currently called outside this module. */
-export function describeOutcome(state: GameState): {
-  wonVsBogle: boolean;
-  totalReturnPct: number;
-} {
-  return {
-    wonVsBogle: edgeBpsVs(state, BOGLE_NPC_ID) >= 0,
-    totalReturnPct: (playerValue(state) / 10_000 - 1) * 100,
   };
 }
