@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { executeBuy, executeSell, processPendingOrders } from './orders'
+import {
+  buyAmountForPercent,
+  executeBuy,
+  executeSell,
+  processPendingOrders,
+  sellQtyForPercent,
+} from './orders'
 import { FEE_BPS, LONG_TERM_DAYS, STARTING_CASH } from './rules'
 import { currentPrice } from './selectors'
 import type { GameState } from './state'
@@ -8,6 +14,20 @@ import { freshRun, totalLotQty } from './test-support'
 function withSettings(state: GameState, settings: Partial<GameState['settings']>): GameState {
   return { ...state, settings: { ...state.settings, ...settings } }
 }
+
+describe('buyAmountForPercent', () => {
+  it('spends the requested percent of the cash on hand', () => {
+    const state = freshRun(21)
+    expect(buyAmountForPercent(state, 25)).toBeCloseTo(STARTING_CASH * 0.25, 8)
+  })
+})
+
+describe('sellQtyForPercent', () => {
+  it('sells the requested percent of the shares held', () => {
+    const invested = executeBuy(withSettings(freshRun(21), { fees: false }), 4000)
+    expect(sellQtyForPercent(invested, 50)).toBeCloseTo(invested.shares * 0.5, 8)
+  })
+})
 
 describe('executeBuy', () => {
   it('spends the cash, records the lot, and logs the trade', () => {

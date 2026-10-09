@@ -84,3 +84,8 @@ export function canContinue(state: GameState): boolean {
 export function isLongTermLot(state: GameState, lotDay: number): boolean {
   return state.day - lotDay > LONG_TERM_DAYS
 }
+
+/** The plain percentage gain or loss on the player's position, for the end-of-run summary. */
+export function totalReturnPct(state: GameState): number {
+  return (playerValue(state) / STARTING_CASH - 1) * 100
+}

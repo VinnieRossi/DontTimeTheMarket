@@ -2,6 +2,16 @@ import { FEE_BPS, LONG_TERM_DAYS, SHARE_EPSILON, TAX_LONG_RATE, TAX_SHORT_RATE }
 import { currentPrice, elapsedDays } from './selectors'
 import type { GameState, Lot, PendingOrder, TradeLogEntry } from './state'
 
+/** The cash a buy order of `percent` of the player's cash on hand would spend. */
+export function buyAmountForPercent(state: GameState, percent: number): number {
+  return state.cash * (percent / 100)
+}
+
+/** The share count a sell order of `percent` of the player's position would close. */
+export function sellQtyForPercent(state: GameState, percent: number): number {
+  return state.shares * (percent / 100)
+}
+
 /** A market buy of `amountUsd` worth of shares. Pure: it returns a new state and mutates nothing. */
 export function executeBuy(state: GameState, amountUsd: number): GameState {
   const price = currentPrice(state)

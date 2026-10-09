@@ -12,6 +12,7 @@ import {
   npcValue,
   playerValue,
   runningGapPctVs,
+  totalReturnPct,
 } from './selectors'
 import { buyAndFill, freshRun, tickTimes } from './test-support'
 
@@ -65,6 +66,22 @@ describe('scoring', () => {
 
   it('reports no gap against an NPC that does not exist rather than dividing by zero', () => {
     expect(runningGapPctVs(freshRun(5), 'nobody')).toBe(0)
+  })
+})
+
+describe('totalReturnPct', () => {
+  it('reads zero for a fresh run still worth its starting cash', () => {
+    expect(totalReturnPct(freshRun(5))).toBeCloseTo(0, 10)
+  })
+
+  it('reads positive for a run worth more than it started with', () => {
+    const state = { ...freshRun(5), cash: STARTING_CASH * 1.5 }
+    expect(totalReturnPct(state)).toBeGreaterThan(0)
+  })
+
+  it('reads negative for a run worth less than it started with', () => {
+    const state = { ...freshRun(5), cash: STARTING_CASH * 0.5 }
+    expect(totalReturnPct(state)).toBeLessThan(0)
   })
 })
 

@@ -1,6 +1,6 @@
 'use client'
 
-import type { RunLength } from '@dttm/engine'
+import { buyAmountForPercent, type RunLength, sellQtyForPercent } from '@dttm/engine'
 import { useGame } from '@dttm/hooks'
 import {
   AddDataSheet,
@@ -83,7 +83,6 @@ export function GameApp() {
 
   const { series, markers } = chartView(state)
   const placeOrder = (intent: TradeIntent): void => {
-    const fraction = intent.percent / 100
     dispatch({
       type: 'PLACE_ORDER',
       order:
@@ -91,13 +90,13 @@ export function GameApp() {
           ? {
               side: 'buy',
               orderType: intent.orderType,
-              amountUsd: state.cash * fraction,
+              amountUsd: buyAmountForPercent(state, intent.percent),
               ...(intent.triggerPrice === undefined ? {} : { targetPrice: intent.triggerPrice }),
             }
           : {
               side: 'sell',
               orderType: intent.orderType,
-              qty: state.shares * fraction,
+              qty: sellQtyForPercent(state, intent.percent),
               ...(intent.triggerPrice === undefined ? {} : { targetPrice: intent.triggerPrice }),
             },
     })

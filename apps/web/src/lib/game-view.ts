@@ -21,7 +21,7 @@ import {
   runningGapPctVs,
   SPEEDS,
   type Speed,
-  STARTING_CASH,
+  totalReturnPct,
 } from '@dttm/engine'
 import type {
   ActionView,
@@ -244,7 +244,7 @@ function continueAction(state: GameState, won: boolean): ActionView {
 export function endScreenView(state: GameState): EndScreenView {
   const edge = edgeBpsVs(state, BOGLE_NPC_ID)
   const won = edge >= 0
-  const totalReturn = (playerValue(state) / STARTING_CASH - 1) * 100
+  const totalReturn = totalReturnPct(state)
   return {
     heading: won ? `You beat the ${BENCHMARK_NAME}` : `The ${BENCHMARK_NAME} wins this one`,
     edge: formatBasisPoints(edge),

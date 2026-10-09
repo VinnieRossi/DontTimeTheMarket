@@ -20,7 +20,7 @@ export type { MacroSeries, NasdaqSeries } from './market-data'
 export { closeAt, MAX_START_DAY, MIN_START_DAY, macro, nasdaq, SERIES_LENGTH } from './market-data'
 export { macdFromMomentum, rsiFromMomentum } from './momentum'
 export { BOGLE_NPC_ID } from './npc'
-export { executeBuy, executeSell } from './orders'
+export { buyAmountForPercent, executeBuy, executeSell, sellQtyForPercent } from './orders'
 export type { RunLength, Speed } from './rules'
 export {
   CHART_WINDOW_DAYS,
@@ -44,6 +44,7 @@ export {
   npcValue,
   playerValue,
   runningGapPctVs,
+  totalReturnPct,
 } from './selectors'
 export type { RealismSettings } from './settings'
 export { DEFAULT_SETTINGS } from './settings'
