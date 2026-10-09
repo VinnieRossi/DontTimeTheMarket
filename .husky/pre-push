@@ -1,0 +1,6 @@
+echo "pre-push: full verification (same command CI runs)"
+if [ -n "$(git status --porcelain --untracked-files=no | head -1)" ]; then
+  echo "Uncommitted tracked changes present. Commit or stash before pushing, because CI only sees committed code."
+  exit 1
+fi
+pnpm verify

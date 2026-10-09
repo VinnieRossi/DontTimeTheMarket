@@ -1,0 +1,6 @@
+{
+  "name": "@dttm/agent-hooks",
+  "private": true,
+  "type": "module",
+  "description": "Marks the hook scripts as ES modules, so Node runs them without reparsing and without a warning that a hook runner would read as a failure"
+}

@@ -1,0 +1,103 @@
+/*
+ * The surface every component renders on. Nothing here sets a raw value: every declaration
+ * resolves a token, so the whole appearance changes from the token file alone.
+ */
+
+/*
+ * Padding and borders count inside a declared width. Without this, a full-width field with padding
+ * is wider than the column holding it, which is invisible on a desktop and a horizontal scrollbar
+ * on a phone.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.app-surface {
+  background: var(--app-bg);
+  color: var(--app-ink);
+  font-family: var(--app-font-body);
+  font-size: var(--app-text-md);
+  line-height: var(--app-leading-normal);
+}
+
+.app-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+}
+
+.app-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-3);
+}
+
+.app-row--tight {
+  gap: var(--app-space-2);
+}
+
+.app-row--end {
+  justify-content: flex-end;
+}
+
+.app-row--between {
+  justify-content: space-between;
+}
+
+/*
+ * A visible focus ring on every interactive element, because the browser default disappears
+ * against a custom background and keyboard navigation then has nothing to follow.
+ */
+.app-focusable:focus-visible {
+  outline: 2px solid var(--app-focus);
+  outline-offset: 2px;
+}
+
+.app-heading {
+  margin: 0;
+  font-family: var(--app-font-display);
+  font-weight: var(--app-weight-bold);
+  line-height: var(--app-leading-tight);
+}
+
+.app-heading--lg {
+  font-size: var(--app-text-3xl);
+}
+
+.app-heading--md {
+  font-size: var(--app-text-2xl);
+}
+
+.app-heading--sm {
+  font-size: var(--app-text-xl);
+}
+
+.app-text-muted {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-md);
+  line-height: var(--app-leading-relaxed);
+  margin: 0;
+}
+
+.app-text-fine {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-sm);
+  margin: 0;
+}
+
+.app-text-up {
+  color: var(--app-up);
+}
+
+.app-text-down {
+  color: var(--app-down);
+}
+
+@media (width >= 640px) {
+  .app-heading--lg {
+    font-size: var(--app-text-4xl);
+  }
+}

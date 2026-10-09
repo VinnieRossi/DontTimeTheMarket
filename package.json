@@ -1,36 +1,43 @@
 {
   "name": "dont-time-the-market",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "bake-data": "tsx scripts/bake-data.ts"
+  "description": "Trade a randomized slice of real market history and find out why timing it does not work",
+  "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": ">=24"
   },
-  "dependencies": {
-    "lightweight-charts": "5.2.1",
-    "next": "16.4.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "storybook": "pnpm --filter @dttm/ui storybook",
+    "storybook:build": "turbo run storybook:build",
+    "test:e2e": "pnpm --filter @dttm/e2e test:func",
+    "test:visual": "pnpm --filter @dttm/e2e test:visual",
+    "test:visual:update": "pnpm --filter @dttm/e2e test:visual:update",
+    "e2e:install-browsers": "pnpm --filter @dttm/e2e install-browsers",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "bake-data": "tsx scripts/bake-data.ts",
+    "verify": "tsx scripts/verify.ts",
+    "verify:staged": "tsx scripts/verify.ts --staged",
+    "validate": "tsx scripts/run-validators.ts",
+    "validate:architecture": "tsx scripts/validate-architecture.ts",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@types/node": "24.19.1",
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "@tailwindcss/postcss": "4.3.3",
-    "eslint": "9.39.5",
-    "eslint-config-next": "16.4.0",
-    "postcss": "8.5.29",
-    "tailwindcss": "4.3.3",
-    "tsx": "4.23.15",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.71.1",
-    "vitest": "5.0.3"
+    "@dttm/config": "workspace:*",
+    "@biomejs/biome": "^2.5.14",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@types/node": "^26.6.3",
+    "husky": "^9.1.7",
+    "tsx": "^4.23.15",
+    "turbo": "^2.11.4",
+    "typescript": "^7.0.2"
   }
 }

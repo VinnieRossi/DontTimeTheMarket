@@ -1,0 +1,381 @@
+/* The atoms and the small compositions over them, one block each, every value from a token. */
+
+.app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-3);
+  border: 1.5px solid transparent;
+  border-radius: var(--app-radius-pill);
+  font-family: inherit;
+  font-weight: var(--app-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms linear,
+    border-color 120ms linear;
+}
+
+.app-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.app-button--full {
+  display: flex;
+  width: 100%;
+}
+
+.app-button--sm {
+  padding: var(--app-space-2) var(--app-space-5);
+  font-size: var(--app-text-sm);
+}
+
+.app-button--md {
+  padding: var(--app-space-5) var(--app-space-8);
+  font-size: var(--app-text-md);
+}
+
+.app-button--lg {
+  padding: var(--app-space-7);
+  font-size: var(--app-text-lg);
+}
+
+.app-button--primary {
+  background: var(--app-accent);
+  color: var(--app-ink-inverse);
+  box-shadow: var(--app-shadow-button);
+}
+
+.app-button--secondary {
+  background: var(--app-surface-raised);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+.app-button--ghost {
+  background: var(--app-surface-raised);
+  border-color: var(--app-border);
+  color: var(--app-ink);
+}
+
+.app-button--buy {
+  background: var(--app-up);
+  color: var(--app-ink-inverse);
+}
+
+.app-button--sell {
+  background: var(--app-down);
+  color: var(--app-ink-inverse);
+}
+
+/* A round button whose label is one glyph, sized so a thumb can still hit it. */
+.app-button--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: var(--app-text-md);
+}
+
+.app-chip {
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-surface-raised);
+  color: var(--app-ink);
+  font-family: inherit;
+  font-weight: var(--app-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms linear,
+    border-color 120ms linear;
+}
+
+.app-chip--sm {
+  padding: var(--app-space-2) var(--app-space-5);
+  font-size: var(--app-text-sm);
+}
+
+.app-chip--md {
+  padding: var(--app-space-4) var(--app-space-7);
+  font-size: var(--app-text-md);
+}
+
+.app-chip[aria-pressed="true"] {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: var(--app-ink-inverse);
+}
+
+/* A row of chips that split the width between them, which is how the buy and sell tabs read. */
+.app-chip-row {
+  display: flex;
+  gap: var(--app-space-3);
+}
+
+.app-chip-row > .app-chip {
+  flex: 1;
+}
+
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--app-space-1) var(--app-space-5);
+  border-radius: var(--app-radius-pill);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-badge--neutral {
+  background: var(--app-tone-neutral-soft);
+  color: var(--app-tone-neutral);
+}
+
+.app-badge--info {
+  background: var(--app-tone-info-soft);
+  color: var(--app-tone-info);
+}
+
+.app-badge--success {
+  background: var(--app-tone-success-soft);
+  color: var(--app-tone-success);
+}
+
+.app-badge--warning {
+  background: var(--app-tone-warning-soft);
+  color: var(--app-tone-warning);
+}
+
+.app-badge--danger {
+  background: var(--app-tone-danger-soft);
+  color: var(--app-tone-danger);
+}
+
+.app-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+}
+
+.app-field__label {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-input {
+  width: 100%;
+  padding: var(--app-space-4) var(--app-space-3);
+  background: var(--app-surface-raised);
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-ink);
+  font-family: inherit;
+  font-size: var(--app-text-md);
+  line-height: var(--app-leading-normal);
+}
+
+.app-input::placeholder {
+  color: var(--app-ink-muted);
+}
+
+.app-input:disabled {
+  background: var(--app-surface);
+  color: var(--app-ink-muted);
+  cursor: not-allowed;
+}
+
+.app-input[aria-invalid="true"] {
+  border-color: var(--app-tone-danger);
+}
+
+.app-field__error {
+  margin: 0;
+  color: var(--app-tone-danger);
+  font-size: var(--app-text-sm);
+}
+
+.app-check {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  padding: var(--app-space-2) 0;
+  font-size: var(--app-text-md);
+  cursor: pointer;
+}
+
+.app-check__box {
+  width: var(--app-space-7);
+  height: var(--app-space-7);
+  accent-color: var(--app-accent);
+  cursor: pointer;
+}
+
+.app-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-5);
+  padding: var(--app-space-4) 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: var(--app-text-md);
+}
+
+.app-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: var(--app-space-9);
+  padding: 0;
+  border: none;
+  border-radius: var(--app-radius-pill);
+  background: var(--app-border);
+  cursor: pointer;
+  transition: background-color 120ms linear;
+}
+
+.app-switch[aria-checked="true"] {
+  background: var(--app-accent);
+}
+
+.app-switch__knob {
+  position: absolute;
+  top: var(--app-space-hair);
+  left: var(--app-space-hair);
+  width: var(--app-space-8);
+  height: var(--app-space-8);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-surface-raised);
+  transition: left 120ms linear;
+}
+
+.app-switch[aria-checked="true"] .app-switch__knob {
+  left: var(--app-space-8);
+}
+
+.app-card {
+  padding: var(--app-space-6);
+  background: var(--app-surface-raised);
+  border-radius: var(--app-radius-card);
+  box-shadow: var(--app-shadow-card);
+}
+
+.app-card--roomy {
+  padding: var(--app-space-9);
+}
+
+.app-tile {
+  padding: var(--app-space-5);
+  background: var(--app-surface-raised);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+}
+
+.app-tile--sunken {
+  background: var(--app-surface-sunken);
+  border-radius: var(--app-radius-sm);
+  box-shadow: none;
+}
+
+.app-stat__label {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-2xs);
+  font-weight: var(--app-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.app-stat__value {
+  font-weight: var(--app-weight-bold);
+  font-size: var(--app-text-md);
+}
+
+.app-stat--end {
+  text-align: right;
+}
+
+.app-readout {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-1);
+  padding: var(--app-space-1) var(--app-space-4);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-readout__value {
+  color: var(--app-ink);
+}
+
+.app-note {
+  margin: 0;
+  padding: var(--app-space-4) var(--app-space-6);
+  background: var(--app-tone-info-soft);
+  border: 1.5px solid var(--app-accent-border);
+  border-radius: var(--app-radius);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-5);
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-1);
+}
+
+.app-legend__swatch {
+  display: inline-block;
+  width: var(--app-space-6);
+  height: 3px;
+  border-radius: var(--app-radius-pill);
+}
+
+.app-legend__swatch--price {
+  background: var(--app-series-price);
+}
+
+.app-legend__swatch--player {
+  background: var(--app-series-player);
+}
+
+.app-legend__swatch--sma20 {
+  background: var(--app-series-sma20);
+}
+
+.app-legend__swatch--sma50 {
+  background: var(--app-series-sma50);
+}
+
+.app-legend__swatch--benchmark {
+  color: var(--app-series-benchmark);
+}
+
+.app-legend__swatch--bollingerUpper,
+.app-legend__swatch--bollingerLower {
+  color: var(--app-series-bollinger);
+}
+
+/* Last, so a dashed line wins over whatever fill its role set. */
+.app-legend__swatch--dashed {
+  height: 0;
+  border-radius: 0;
+  border-top: 2px dashed currentcolor;
+  background: none;
+}
+
+.app-chart {
+  width: 100%;
+}

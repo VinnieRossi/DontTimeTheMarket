@@ -1,156 +1,142 @@
+import { mkdir, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { heading, info, pass } from './lib/proc'
+
 /**
- * Build-time data bake script. Run manually with `npm run bake-data`.
+ * The data bake. Run it by hand with `pnpm bake-data`.
  *
- * Fetches daily NASDAQ Composite prices and a handful of macro series from
- * FRED's public CSV endpoint (fred.stlouisfed.org/graph/fredgraph.csv),
- * which needs no API key and no account. Output is written to
- * data/baked/*.json and committed to the repo; the deployed app never
- * calls FRED at runtime.
+ * It fetches daily Nasdaq Composite prices and a handful of macro series from FRED's public CSV
+ * endpoint, which needs no API key and no account, and writes them to the engine package's
+ * committed data directory. The deployed app never calls FRED: a run plays against the files in
+ * the repository, which is what makes a seed reproducible years later.
  *
- * Re-run this script manually (e.g. quarterly) to refresh the baked data;
- * it is not wired into any CI job or runtime path.
+ * Re-run it when the data should be refreshed, for example quarterly. Nothing in CI or at runtime
+ * invokes it.
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+const OUT_DIR = path.resolve(
+  import.meta.dirname,
+  '..',
+  'packages',
+  'shared',
+  'engine',
+  'data',
+  'baked'
+)
 
-const OUT_DIR = path.resolve(import.meta.dirname, "..", "data", "baked");
-
-const FRED_BASE = "https://fred.stlouisfed.org/graph/fredgraph.csv";
+const FRED_BASE = 'https://fred.stlouisfed.org/graph/fredgraph.csv'
 
 interface FredSeries {
-  dates: string[];
-  values: (number | null)[];
+  dates: string[]
+  values: (number | null)[]
 }
 
 async function fetchFredSeries(id: string): Promise<FredSeries> {
-  const url = `${FRED_BASE}?id=${id}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`FRED fetch failed for ${id}: HTTP ${res.status}`);
+  const response = await fetch(`${FRED_BASE}?id=${id}`)
+  if (!response.ok) {
+    throw new Error(`FRED fetch failed for ${id}: HTTP ${response.status}`)
   }
-  const text = await res.text();
-  const lines = text.trim().split("\n");
-  // First line is a header: "observation_date,<SERIES_ID>"
-  const dates: string[] = [];
-  const values: (number | null)[] = [];
-  for (const line of lines.slice(1)) {
-    const [date, raw] = line.split(",");
-    if (!date) continue;
-    dates.push(date);
-    values.push(raw === "." || raw === undefined ? null : Number(raw));
+  const text = await response.text()
+  // The first line is a header: "observation_date,<SERIES_ID>".
+  const dates: string[] = []
+  const values: (number | null)[] = []
+  for (const line of text.trim().split('\n').slice(1)) {
+    const [date, raw] = line.split(',')
+    if (date === undefined || date === '') continue
+    dates.push(date)
+    values.push(raw === '.' || raw === undefined ? null : Number(raw))
   }
-  return { dates, values };
+  return { dates, values }
 }
 
 /**
- * Aligns a (possibly sparser, lower-frequency) macro series onto the
- * target daily date grid by forward-filling the last known value, and
- * back-filling any leading gap with the first known value. This is a
- * standard way to put monthly series (CPI, unemployment, Fed funds, M2)
- * and a series with a later start date (VIX, which only goes back to
- * 1990) onto the same daily index space as the NASDAQ price series,
- * so the engine can index every series by the same integer day offset.
- * Back-filling the lead-in for VIX specifically means days before 1990
- * show 1990's earliest reading rather than a gap; that is a deliberate,
- * disclosed simplification for a tongue-in-cheek educational game, not
- * a claim of historical accuracy before the series existed.
+ * Aligns a sparser, lower-frequency series onto the daily date grid by carrying the last known
+ * value forward, and fills any leading gap with the first known value.
+ *
+ * This is how a monthly series (CPI, unemployment, Fed funds, M2) and a series that starts later
+ * than the price history (VIX, which begins in 1990) end up on the same daily index space as the
+ * Nasdaq series, so the engine can address every series by one integer day offset. Filling the
+ * lead-in means days before 1990 show 1990's earliest VIX reading rather than a gap: a deliberate,
+ * disclosed simplification for a tongue-in-cheek game, not a claim about history before the series
+ * existed.
  */
-function alignToGrid(
-  targetDates: string[],
-  source: FredSeries,
-): (number | null)[] {
-  const sourceMap = new Map<string, number>();
-  for (let i = 0; i < source.dates.length; i++) {
-    const v = source.values[i];
-    if (v !== null && v !== undefined) {
-      sourceMap.set(source.dates[i]!, v);
-    }
+function alignToGrid(targetDates: readonly string[], source: FredSeries): (number | null)[] {
+  const byDate = new Map<string, number>()
+  for (const [index, date] of source.dates.entries()) {
+    const value = source.values[index]
+    if (value !== null && value !== undefined) byDate.set(date, value)
   }
-  const sourceDatesSorted = [...sourceMap.keys()].sort();
-  const out: (number | null)[] = [];
-  let lastKnown: number | null = null;
-  let sourceIdx = 0;
-  for (const d of targetDates) {
-    while (
-      sourceIdx < sourceDatesSorted.length &&
-      sourceDatesSorted[sourceIdx]! <= d
-    ) {
-      lastKnown = sourceMap.get(sourceDatesSorted[sourceIdx]!)!;
-      sourceIdx++;
+
+  const sourceDates = [...byDate.keys()].sort()
+  const aligned: (number | null)[] = []
+  let lastKnown: number | null = null
+  let cursor = 0
+  for (const date of targetDates) {
+    while (cursor < sourceDates.length && (sourceDates[cursor] ?? '') <= date) {
+      lastKnown = byDate.get(sourceDates[cursor] ?? '') ?? lastKnown
+      cursor += 1
     }
-    out.push(lastKnown);
+    aligned.push(lastKnown)
   }
-  // Back-fill any leading nulls with the first known value.
-  const firstKnownIdx = out.findIndex((v) => v !== null);
-  if (firstKnownIdx > 0) {
-    const firstKnown = out[firstKnownIdx]!;
-    for (let i = 0; i < firstKnownIdx; i++) {
-      out[i] = firstKnown;
-    }
+
+  const firstKnownIndex = aligned.findIndex((value) => value !== null)
+  const firstKnown = firstKnownIndex === -1 ? null : (aligned[firstKnownIndex] ?? null)
+  for (let index = 0; index < firstKnownIndex; index++) {
+    aligned[index] = firstKnown
   }
-  return out;
+  return aligned
 }
 
-async function main() {
-  console.log("Fetching NASDAQCOM (daily, since 1971)...");
-  const nasdaq = await fetchFredSeries("NASDAQCOM");
+const MACRO_SERIES_IDS = {
+  cpi: 'CPIAUCSL',
+  dgs10: 'DGS10',
+  dgs2: 'DGS2',
+  dtb3: 'DTB3',
+  fedFunds: 'FEDFUNDS',
+  unemployment: 'UNRATE',
+  vix: 'VIXCLS',
+  m2: 'M2SL',
+} as const
 
-  // FRED's NASDAQCOM feed turns out to carry two different kinds of gap,
-  // not one: "." for an unscheduled missing observation (handled by the
-  // v !== null check), and a literal 0 on market holidays that fall on a
-  // weekday (verified against the US market holiday calendar: 1971-02-15
-  // Washington's Birthday, 1971-04-09 Good Friday, 1971-09-06 Labor Day,
-  // and 484 others like them across the full series). A holiday is not a
-  // trading day with a real closing price of zero, so both kinds of gap
-  // are dropped the same way; the engine assumes a dense array of real
-  // trading days with no zero or negative prices.
-  const dates: string[] = [];
-  const close: number[] = [];
-  for (let i = 0; i < nasdaq.dates.length; i++) {
-    const v = nasdaq.values[i];
-    if (v !== null && v !== undefined && v > 0) {
-      dates.push(nasdaq.dates[i]!);
-      close.push(v);
+async function main(): Promise<void> {
+  heading('Fetching NASDAQCOM (daily, since 1971)')
+  const source = await fetchFredSeries('NASDAQCOM')
+
+  /*
+   * FRED's NASDAQCOM feed carries two different kinds of gap, not one: "." for an unscheduled
+   * missing observation, and a literal 0 on a market holiday that falls on a weekday (verified
+   * against the US market holiday calendar: 1971-02-15 Washington's Birthday, 1971-04-09 Good
+   * Friday, 1971-09-06 Labor Day, and 484 others like them across the full series). A holiday is
+   * not a trading day whose close was zero, so both kinds of gap are dropped the same way and the
+   * engine gets a dense array of real trading days with no zero or negative price in it.
+   */
+  const dates: string[] = []
+  const close: number[] = []
+  for (const [index, date] of source.dates.entries()) {
+    const value = source.values[index]
+    if (value !== null && value !== undefined && value > 0) {
+      dates.push(date)
+      close.push(value)
     }
   }
-  console.log(`  -> ${dates.length} trading days, ${dates[0]} to ${dates[dates.length - 1]}`);
+  info(`${dates.length} trading days, ${dates[0]} to ${dates[dates.length - 1]}`)
 
-  const macroSeriesIds = {
-    cpi: "CPIAUCSL",
-    dgs10: "DGS10",
-    dgs2: "DGS2",
-    dtb3: "DTB3",
-    fedFunds: "FEDFUNDS",
-    unemployment: "UNRATE",
-    vix: "VIXCLS",
-    m2: "M2SL",
-  } as const;
-
-  const macro: Record<string, (number | null)[]> = {};
-  for (const [key, id] of Object.entries(macroSeriesIds)) {
-    console.log(`Fetching ${id}...`);
-    const series = await fetchFredSeries(id);
-    macro[key] = alignToGrid(dates, series);
-    const nonNull = macro[key]!.filter((v) => v !== null).length;
-    console.log(`  -> aligned to ${nonNull}/${dates.length} non-null days`);
+  const macro: Record<string, (number | null)[]> = {}
+  for (const [key, id] of Object.entries(MACRO_SERIES_IDS)) {
+    heading(`Fetching ${id}`)
+    const aligned = alignToGrid(dates, await fetchFredSeries(id))
+    macro[key] = aligned
+    info(`aligned to ${aligned.filter((value) => value !== null).length}/${dates.length} days`)
   }
 
-  await mkdir(OUT_DIR, { recursive: true });
-
-  await writeFile(
-    path.join(OUT_DIR, "nasdaq.json"),
-    JSON.stringify({ dates, close }),
-  );
-  // No "dates" field here: every macro array aligns by index position to
-  // nasdaq.json's dates/close arrays (same length, same order), so the
-  // date strings do not need to be duplicated in this file.
-  await writeFile(path.join(OUT_DIR, "macro.json"), JSON.stringify(macro));
-
-  console.log(`Wrote baked data to ${OUT_DIR}`);
+  await mkdir(OUT_DIR, { recursive: true })
+  await writeFile(path.join(OUT_DIR, 'nasdaq.json'), JSON.stringify({ dates, close }))
+  /*
+   * No dates field here: every macro array aligns by index position to nasdaq.json's dates and
+   * close arrays, same length and same order, so the date strings are not duplicated.
+   */
+  await writeFile(path.join(OUT_DIR, 'macro.json'), JSON.stringify(macro))
+  pass(`Wrote baked data to ${OUT_DIR}`)
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exitCode = 1;
-});
+await main()

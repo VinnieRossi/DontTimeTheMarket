@@ -1,0 +1,20 @@
+{
+  "name": "@dttm/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright: visual regression against the app and every Storybook story, functional e2e through a real run",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:visual": "pnpm --filter @dttm/ui storybook:build && playwright test",
+    "test:visual:update": "pnpm --filter @dttm/ui storybook:build && playwright test --update-snapshots",
+    "test:func": "playwright test --config=playwright.func.config.ts",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@dttm/config": "workspace:*",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "typescript": "^7.0.2"
+  }
+}

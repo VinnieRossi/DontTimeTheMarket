@@ -1,0 +1,114 @@
+/*
+ * The design tokens. This is the only file in the repository where a raw color, length, or font
+ * value is written, which is what makes a change to any of them a one-line change rather than a
+ * search. Components reach them through these custom properties and never restate a value.
+ *
+ * The palette is the game's own: a cool paper background, white cards that sit on it with a hard
+ * bottom edge, one teal accent, and a green and a red that only ever mean up and down.
+ *
+ * Only custom properties live here. The typefaces the type tokens name are declared next door in
+ * `fonts.css`, which the design system loads alongside this file.
+ */
+:root {
+  /* Surfaces and text */
+  --app-bg: #f4f8fb;
+  --app-surface: #f3f8fb;
+  --app-surface-raised: #ffffff;
+  --app-surface-sunken: #f7fbfd;
+  --app-border: #e3ecf3;
+  --app-ink: #132235;
+  --app-ink-muted: #5b7186;
+  --app-ink-inverse: #ffffff;
+
+  /* Accents, one per semantic tone */
+  --app-tone-neutral: #5b7186;
+  --app-tone-info: #0e7fae;
+  --app-tone-success: #1b9e6b;
+  --app-tone-warning: #8a5a00;
+  --app-tone-danger: #e0493f;
+  --app-tone-neutral-soft: #eaf0f5;
+  --app-tone-info-soft: #eaf6fb;
+  --app-tone-success-soft: #e4f4ec;
+  --app-tone-warning-soft: #fdf1da;
+  --app-tone-danger-soft: #fceae8;
+
+  /*
+   * The accent, named apart from the info tone it happens to share a value with, because a
+   * button and a badge should be able to move independently. The deep shade is the edge under a
+   * pressed-looking button, and the soft border is the edge of a highlighted panel.
+   */
+  --app-accent: #0e7fae;
+  --app-accent-deep: #0a5f82;
+  --app-accent-border: #cfe9f3;
+
+  /* Direction: these two only ever mean a number went up or down */
+  --app-up: #1b9e6b;
+  --app-down: #e0493f;
+
+  /* Focus, for a visible ring that meets contrast without relying on the browser default */
+  --app-focus: #0a5f82;
+
+  /* Spacing, on a two-pixel grid rather than ad hoc */
+  --app-space-hair: 2px;
+  --app-space-1: 4px;
+  --app-space-2: 6px;
+  --app-space-3: 8px;
+  --app-space-4: 10px;
+  --app-space-5: 12px;
+  --app-space-6: 14px;
+  --app-space-7: 16px;
+  --app-space-8: 20px;
+  --app-space-9: 24px;
+  --app-space-10: 32px;
+
+  /* Radii */
+  --app-radius-sm: 12px;
+  --app-radius: 16px;
+  --app-radius-card: 20px;
+  --app-radius-sheet: 22px;
+  --app-radius-pill: 999px;
+
+  /* Type */
+  --app-font-display: Quicksand, system-ui, sans-serif;
+  --app-font-body: Nunito, system-ui, sans-serif;
+  --app-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --app-text-2xs: 10px;
+  --app-text-xs: 11px;
+  --app-text-sm: 12px;
+  --app-text-md: 14px;
+  --app-text-lg: 16px;
+  --app-text-xl: 18px;
+  --app-text-2xl: 20px;
+  --app-text-3xl: 24px;
+  --app-text-4xl: 30px;
+  --app-text-5xl: 36px;
+  --app-leading-tight: 1.2;
+  --app-leading-normal: 1.5;
+  --app-leading-relaxed: 1.65;
+  --app-weight-regular: 400;
+  --app-weight-medium: 600;
+  --app-weight-bold: 700;
+  --app-weight-heavy: 800;
+
+  /* Elevation: a hard bottom edge on everything, plus one soft lift for a card */
+  --app-shadow: 0 2px 0 var(--app-border);
+  --app-shadow-card: 0 2px 0 var(--app-border), 0 16px 32px -20px rgb(14 127 174 / 35%);
+  --app-shadow-button: 0 4px 0 var(--app-accent-deep);
+  --app-overlay: rgb(19 34 53 / 40%);
+
+  /*
+   * The chart. Every line the engine can ask for has a color here, keyed by the role the engine
+   * names, because the charting library takes a color string and cannot read a class.
+   */
+  --app-chart-height: 280px;
+  --app-series-price: #132235;
+  --app-series-player: #0e7fae;
+  --app-series-benchmark: #5b7186;
+  --app-series-sma20: #f4a300;
+  --app-series-sma50: #8fa7bd;
+  --app-series-bollinger: rgb(14 127 174 / 45%);
+  --app-chart-grid: #e3ecf3;
+  --app-chart-axis: #5b7186;
+  --app-marker-buy: #1b9e6b;
+  --app-marker-sell: #e0493f;
+}
