@@ -25,6 +25,10 @@ Runs the production build (run `npm run build` first).
 
 Runs ESLint over the project.
 
+### `npm run typecheck`
+
+Runs the TypeScript compiler in check-only mode (`tsc --noEmit`).
+
 ### `npm test`
 
 Runs the Vitest test suite once.
