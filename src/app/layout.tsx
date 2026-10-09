@@ -1,17 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Quicksand } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const quicksand = Quicksand({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+const quicksand = localFont({
+  src: [
+    { path: "./fonts/quicksand-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/quicksand-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/quicksand-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-quicksand",
   display: "swap",
 });
 
-const nunito = Nunito({
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+const nunito = localFont({
+  src: [
+    { path: "./fonts/nunito-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/nunito-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/nunito-700.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/nunito-800.woff2", weight: "800", style: "normal" },
+  ],
   variable: "--font-nunito",
   display: "swap",
 });
