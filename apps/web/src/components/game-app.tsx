@@ -1,163 +1,90 @@
 'use client'
 
-import { buyAmountForPercent, type RunLength, sellQtyForPercent } from '@dttm/engine'
-import { useGame } from '@dttm/hooks'
-import {
-  AddDataSheet,
-  EndScreen,
-  GameScreen,
-  MarketChart,
-  PageShell,
-  SettingsSheet,
-  StartScreen,
-  TradeSheet,
-} from '@dttm/ui'
-import type { TradeIntent } from '@dttm/validation'
+import { isPortfolioRun, type RunLength } from '@dttm/engine'
+import { drawSeed, useGame } from '@dttm/hooks'
+import { PageShell, StartScreen } from '@dttm/ui'
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import {
-  BRAND,
-  benchmarkFigure,
-  cashOutAction,
-  chartView,
-  commentaryFor,
-  complexityFor,
-  dayLabel,
-  endScreenView,
-  indicatorTiers,
-  legendFor,
-  pendingOrders,
-  playerFigure,
-  RUN_LENGTH_CHOICES,
-  readoutsFor,
-  realismSwitches,
-  SPEED_CHOICES,
-  START_SCREEN_COPY,
-  tilesFor,
-  toIndicatorKey,
-  toSettingKey,
-} from '@/lib/game-view'
-
-type OpenSheet = 'trade' | 'data' | 'settings' | null
+import { BRAND, RUN_LENGTH_CHOICES, START_SCREEN_COPY } from '@/lib/game-view'
+import { IndexRun } from './index-run'
 
 /**
- * The composition. It calls the one hook, maps what it returns into what the screens take, and
- * turns a callback back into an action for the engine. It holds no rule of the game and no markup
- * beyond choosing which screen is on.
+ * Portfolio mode, loaded only once somebody asks for it.
+ *
+ * It is the one part of the app that reads the company roster, which is by far the largest thing
+ * this repository ships. Importing it on demand is what keeps an index run's first load to the
+ * index series alone, and it is why the roster lives behind the engine's own second entry point
+ * rather than beside everything else.
+ */
+const PortfolioApp = dynamic(async () => (await import('./portfolio-app')).PortfolioApp, {
+  ssr: false,
+  loading: () => <p className="app-text-muted">Reading the company roster...</p>,
+})
+
+/**
+ * The composition. It holds a run, decides which of the two modes is on, and hands the run to the
+ * screens that render it. It holds no rule of the game and no markup of its own.
  */
 export function GameApp() {
-  const { state, dispatch, startRun, reset } = useGame()
+  const { state, dispatch, startRun, openRun, reset } = useGame()
   const [runLength, setRunLength] = useState<RunLength>('standard')
-  const [sheet, setSheet] = useState<OpenSheet>(null)
+  /** Non-null while the player is in portfolio mode, and the seed its run will be opened with. */
+  const [builderSeed, setBuilderSeed] = useState<number | null>(null)
 
-  if (state === null) {
+  const leavePortfolio = (): void => {
+    setBuilderSeed(null)
+    reset()
+  }
+
+  if (state !== null && isPortfolioRun(state)) {
     return (
-      <PageShell brand={BRAND} narrow>
-        <StartScreen
-          heading={START_SCREEN_COPY.heading}
-          lede={START_SCREEN_COPY.lede}
-          footnote={START_SCREEN_COPY.footnote}
-          runLengths={RUN_LENGTH_CHOICES}
-          selectedRunLength={runLength}
-          onSelectRunLength={(value) => {
-            const choice = RUN_LENGTH_CHOICES.find((option) => option.value === value)
-            if (choice !== undefined) setRunLength(choice.value)
-          }}
-          onStart={() => startRun(runLength)}
-        />
-      </PageShell>
+      <PortfolioApp
+        seed={state.seed}
+        run={state}
+        dispatch={dispatch}
+        openRun={openRun}
+        onExit={leavePortfolio}
+      />
     )
   }
 
-  if (state.phase === 'ended') {
-    const view = endScreenView(state)
+  if (state === null && builderSeed !== null) {
     return (
-      <PageShell brand={BRAND} narrow>
-        <EndScreen
-          {...view}
-          onContinue={() => dispatch({ type: 'CONTINUE' })}
-          onPlayAgain={reset}
-        />
-      </PageShell>
+      <PortfolioApp
+        seed={builderSeed}
+        run={null}
+        dispatch={dispatch}
+        openRun={openRun}
+        onExit={leavePortfolio}
+      />
     )
   }
 
-  const { series, markers } = chartView(state)
-  const placeOrder = (intent: TradeIntent): void => {
-    dispatch({
-      type: 'PLACE_ORDER',
-      order:
-        intent.side === 'buy'
-          ? {
-              side: 'buy',
-              orderType: intent.orderType,
-              amountUsd: buyAmountForPercent(state, intent.percent),
-              ...(intent.triggerPrice === undefined ? {} : { targetPrice: intent.triggerPrice }),
-            }
-          : {
-              side: 'sell',
-              orderType: intent.orderType,
-              qty: sellQtyForPercent(state, intent.percent),
-              ...(intent.triggerPrice === undefined ? {} : { targetPrice: intent.triggerPrice }),
-            },
-    })
+  if (state !== null) {
+    return <IndexRun state={state} dispatch={dispatch} onPlayAgain={reset} />
   }
 
   return (
-    <PageShell brand={BRAND}>
-      <GameScreen
-        chart={<MarketChart series={series} markers={markers} />}
-        dayLabel={dayLabel(state)}
-        speeds={SPEED_CHOICES}
-        currentSpeed={state.speed}
-        legend={legendFor(state)}
-        readouts={readoutsFor(state)}
-        playerFigure={playerFigure(state)}
-        benchmarkFigure={benchmarkFigure(state)}
-        commentary={commentaryFor(state)}
-        tiles={tilesFor(state)}
-        cashOut={cashOutAction(state)}
-        onSelectSpeed={(value) => {
-          const choice = SPEED_CHOICES.find((option) => option.value === value)
-          if (choice !== undefined) dispatch({ type: 'SET_SPEED', speed: choice.value })
+    <PageShell brand={BRAND} narrow>
+      <StartScreen
+        heading={START_SCREEN_COPY.heading}
+        lede={START_SCREEN_COPY.lede}
+        footnote={START_SCREEN_COPY.footnote}
+        runLengths={RUN_LENGTH_CHOICES}
+        selectedRunLength={runLength}
+        startLabel={START_SCREEN_COPY.startLabel}
+        secondaryLabel={START_SCREEN_COPY.secondaryLabel}
+        onSelectRunLength={(value) => {
+          const choice = RUN_LENGTH_CHOICES.find((option) => option.value === value)
+          if (choice !== undefined) setRunLength(choice.value)
         }}
-        onStep={() => dispatch({ type: 'TICK' })}
-        onOpenTrade={() => setSheet('trade')}
-        onOpenData={() => setSheet('data')}
-        onOpenSettings={() => setSheet('settings')}
-        onCashOut={() => dispatch({ type: 'CASH_OUT' })}
+        onStart={() => startRun(runLength)}
+        /*
+         * The seed is drawn here rather than when the run opens, because the builder has to show
+         * the roster under the same disguise the run will use.
+         */
+        onSecondary={() => setBuilderSeed(drawSeed())}
       />
-
-      {sheet === 'trade' && (
-        <TradeSheet
-          pending={pendingOrders(state)}
-          onSubmit={placeOrder}
-          onCancelOrder={(id) => dispatch({ type: 'CANCEL_ORDER', id })}
-          onClose={() => setSheet(null)}
-        />
-      )}
-      {sheet === 'data' && (
-        <AddDataSheet
-          tiers={indicatorTiers(state)}
-          complexity={complexityFor(state)}
-          onToggle={(key, value) => {
-            const indicator = toIndicatorKey(key)
-            if (indicator !== undefined) {
-              dispatch({ type: 'SET_INDICATOR', key: indicator, value })
-            }
-          }}
-          onClose={() => setSheet(null)}
-        />
-      )}
-      {sheet === 'settings' && (
-        <SettingsSheet
-          switches={realismSwitches(state)}
-          onToggle={(key, value) => {
-            const setting = toSettingKey(key)
-            if (setting !== undefined) dispatch({ type: 'SET_SETTING', key: setting, value })
-          }}
-          onClose={() => setSheet(null)}
-        />
-      )}
     </PageShell>
   )
 }

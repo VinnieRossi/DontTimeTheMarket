@@ -17,3 +17,6 @@ coverage/
 
 .DS_Store
 *.log
+
+# Build-time data bake cache: downloads, not source.
+.cache/

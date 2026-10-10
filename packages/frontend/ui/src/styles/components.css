@@ -379,3 +379,70 @@
 .app-chart {
   width: 100%;
 }
+
+/* A tiny line with no axes: the shape of a series, nothing else. */
+.app-spark {
+  width: 100%;
+  height: var(--app-space-10);
+  flex-shrink: 0;
+}
+
+.app-spark--up path {
+  stroke: var(--app-up);
+}
+
+.app-spark--down path {
+  stroke: var(--app-down);
+}
+
+.app-spark--flat path {
+  stroke: var(--app-accent);
+}
+
+/* Two round buttons with a figure between them, sized for a thumb. */
+.app-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-4);
+}
+
+.app-stepper__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--app-space-10);
+  height: var(--app-space-10);
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-surface-raised);
+  color: var(--app-ink);
+  font-family: inherit;
+  font-size: var(--app-text-lg);
+  font-weight: var(--app-weight-heavy);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.app-stepper__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.app-stepper__value {
+  min-width: var(--app-space-10);
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-heavy);
+  text-align: center;
+}
+
+/* A fact about a company: truthful, and small enough not to shout. */
+.app-tag {
+  display: inline-block;
+  padding: var(--app-space-hair) var(--app-space-4);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-tone-neutral-soft);
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+  font-weight: var(--app-weight-bold);
+}

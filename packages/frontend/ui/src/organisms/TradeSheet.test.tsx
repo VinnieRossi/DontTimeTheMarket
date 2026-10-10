@@ -102,4 +102,49 @@ describe('TradeSheet', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(onCancelOrder).toHaveBeenCalledWith(3)
   })
+
+  it('names which company the panel is pointed at, when a run holds several', () => {
+    render(
+      <TradeSheet
+        pending={[]}
+        subject="NTHX"
+        marketOnly
+        onSubmit={vi.fn()}
+        onCancelOrder={vi.fn()}
+        onClose={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('heading', { name: 'Trade NTHX' })).toBeVisible()
+  })
+
+  it('offers market orders only where a basket would make the rest too much interface', () => {
+    render(
+      <TradeSheet
+        pending={[]}
+        subject="NTHX"
+        marketOnly
+        onSubmit={vi.fn()}
+        onCancelOrder={vi.fn()}
+        onClose={vi.fn()}
+      />
+    )
+    expect(screen.queryByLabelText('Order type')).toBeNull()
+  })
+
+  it('still hands over a market order from the sell side of a market-only panel', async () => {
+    const onSubmit = vi.fn()
+    render(
+      <TradeSheet
+        pending={[]}
+        subject="NTHX"
+        marketOnly
+        onSubmit={onSubmit}
+        onCancelOrder={vi.fn()}
+        onClose={vi.fn()}
+      />
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Sell', pressed: false }))
+    await userEvent.click(screen.getByRole('button', { name: 'Place sell order' }))
+    expect(onSubmit).toHaveBeenCalledWith({ side: 'sell', orderType: 'market', percent: 100 })
+  })
 })

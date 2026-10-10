@@ -32,10 +32,17 @@ nothing to measure.
 
 ## Functional e2e (`playwright.func.config.ts`, `*.func.ts`)
 
-One real flow per file, driven through the UI the way a player drives it. `game.func.ts` opens a
-run, stops the clock, buys, watches the order fill on the following day, runs the market until a
-score is allowed, cashes out, and starts again. `indicators.func.ts` piles readouts onto the chart
-and checks that the screen reports how cluttered it has become.
+One real flow per file, driven through the UI the way a player drives it. `game.func.ts` opens an
+index run, stops the clock, buys, watches the order fill on the following day, runs the market
+until a score is allowed, cashes out, and starts again. `indicators.func.ts` piles readouts onto
+the chart and checks that the screen reports how cluttered it has become. `portfolio.func.ts`
+builds a basket, trims a holding, opens a new position, rebalances, scores the run, and reads the
+reveal.
+
+**Matching a disguised company:** portfolio mode generates a name and a ticker per run, so no
+label on those screens is the same twice. Match a card on what it says about itself (every card's
+label ends with its volatility tag, every holding row reports a weight against a target) rather
+than on which company it happens to be.
 
 Runs against `next dev` on a port of its own. There is nothing to reset between runs: the game is
 a deterministic simulation in the browser over data committed to this repository, so it has no

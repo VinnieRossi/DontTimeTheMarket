@@ -1,7 +1,7 @@
-import { macro, macroAt } from './market-data'
+import { macro, macroAt, maybeCloseAt } from './market-data'
 import { macdFromMomentum, rsiFromMomentum } from './momentum'
-import type { GameState } from './state'
-import { approximateAtr } from './technicals'
+import type { MomentumState } from './state'
+import { approximateAtr, type PriceAt } from './technicals'
 
 /**
  * The optional readouts a player can pile onto the screen. They are grouped into tiers by how
@@ -49,12 +49,24 @@ function formatted(value: number | undefined, render: (value: number) => string)
   return value === undefined ? 'n/a' : render(value)
 }
 
+/** The fields a run has to carry for its readouts to be computable. */
+export interface IndicatorHost {
+  day: number
+  indicators: IndicatorToggles
+  momentum: MomentumState
+}
+
 /**
  * The chips for whatever is switched on, in tier order. The engine formats them because the
  * numbers come from the simulation and a component that formatted them would need the series to
  * do it; what a chip looks like is still decided entirely by the component that renders it.
+ *
+ * The series the price-based readouts are computed over arrives as an accessor, because it is the
+ * index price in an index run and the portfolio's own value in a portfolio run. The macro
+ * readouts take no accessor at all: they are keyed by the simulated day, so they read the same in
+ * either kind of run.
  */
-export function indicatorChips(state: GameState): IndicatorChip[] {
+export function indicatorChips(state: IndicatorHost, priceAt: PriceAt): IndicatorChip[] {
   const chips: IndicatorChip[] = []
   const active = state.indicators
   const day = state.day
@@ -76,7 +88,7 @@ export function indicatorChips(state: GameState): IndicatorChip[] {
     chips.push({ key: 'macd', label: 'MACD', value: macdFromMomentum(state.momentum).toFixed(2) })
   }
   if (active.atr) {
-    const atr = approximateAtr(day)
+    const atr = approximateAtr(priceAt, day)
     chips.push({
       key: 'atr',
       label: 'ATR (volatility)',
@@ -144,4 +156,9 @@ export const COMPLEXITY_LABELS: readonly [string, ...string[]] = [
 export function complexityLabel(chipCount: number): string {
   const level = Math.min(COMPLEXITY_LABELS.length - 1, Math.floor(chipCount / 2.5))
   return COMPLEXITY_LABELS[level] ?? COMPLEXITY_LABELS[0]
+}
+
+/** The readouts of an index run, whose price-based indicators read the baked index series. */
+export function indexIndicatorChips(state: IndicatorHost): IndicatorChip[] {
+  return indicatorChips(state, maybeCloseAt)
 }

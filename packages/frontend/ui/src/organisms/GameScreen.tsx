@@ -24,12 +24,23 @@ export interface GameScreenProps {
   commentary?: string | undefined
   tiles: readonly FigureView[]
   cashOut: ActionView
+  /**
+   * What the run holds, when it holds more than one thing. A portfolio run fills this with its
+   * holdings panel; an index run leaves it out, because a single position is already reported by
+   * the tiles above.
+   */
+  holdings?: ReactNode
+  /** The label on the button that opens the trade panel, since a basket opens a different one. */
+  tradeLabel?: string
+  /** Offered only by a run with weights to restore between several holdings. */
+  rebalance?: ActionView | undefined
   onSelectSpeed: (value: string) => void
   onStep: () => void
   onOpenTrade: () => void
   onOpenData: () => void
   onOpenSettings: () => void
   onCashOut: () => void
+  onRebalance?: (() => void) | undefined
 }
 
 /**
@@ -48,12 +59,16 @@ export function GameScreen({
   commentary,
   tiles,
   cashOut,
+  holdings,
+  tradeLabel = 'Trade',
+  rebalance,
   onSelectSpeed,
   onStep,
   onOpenTrade,
   onOpenData,
   onOpenSettings,
   onCashOut,
+  onRebalance,
 }: GameScreenProps) {
   return (
     <div className="app-game">
@@ -92,6 +107,13 @@ export function GameScreen({
         ))}
       </div>
 
+      {holdings !== undefined && (
+        <Card className="app-game__holdings">
+          <h2 className="app-heading app-heading--sm">Your holdings</h2>
+          {holdings}
+        </Card>
+      )}
+
       <div className="app-game__actions">
         <Button variant="ghost" icon label="Realism settings" onClick={onOpenSettings}>
           {'⚙'}
@@ -99,8 +121,13 @@ export function GameScreen({
         <Button variant="ghost" onClick={onOpenData}>
           + Data
         </Button>
+        {rebalance !== undefined && (
+          <Button variant="secondary" disabled={!rebalance.enabled} onClick={() => onRebalance?.()}>
+            {rebalance.label}
+          </Button>
+        )}
         <Button variant="buy" onClick={onOpenTrade}>
-          Trade
+          {tradeLabel}
         </Button>
       </div>
 

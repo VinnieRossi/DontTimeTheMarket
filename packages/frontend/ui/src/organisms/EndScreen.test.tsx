@@ -75,4 +75,28 @@ describe('EndScreen', () => {
     await userEvent.click(button)
     expect(onContinue).not.toHaveBeenCalled()
   })
+
+  it('reveals nothing for a run that disguised nothing', () => {
+    renderScreen()
+    expect(screen.queryByRole('heading', { name: /actually holding/ })).toBeNull()
+  })
+
+  it('names the real company behind each disguise once the run is over', () => {
+    renderScreen({
+      reveal: [
+        {
+          assetId: 'c1',
+          ticker: 'NTHX',
+          fakeName: 'Northfield Analytics',
+          realName: 'Advanced Micro Devices',
+          detail: 'Information Technology - Semiconductors',
+        },
+      ],
+      revealNote: 'Generated names, real companies.',
+    })
+    expect(screen.getByRole('heading', { name: 'Who you were actually holding' })).toBeVisible()
+    expect(screen.getByText('Advanced Micro Devices')).toBeVisible()
+    expect(screen.getByText(/NTHX/)).toBeVisible()
+    expect(screen.getByText('Generated names, real companies.')).toBeVisible()
+  })
 })

@@ -35,3 +35,7 @@ export const WithPendingOrders: Story = {
     ],
   },
 }
+
+export const TradingOneHolding: Story = {
+  args: { subject: 'NTHX', marketOnly: true },
+}

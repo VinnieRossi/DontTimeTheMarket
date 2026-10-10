@@ -1,4 +1,4 @@
-import { closeAt } from './market-data'
+import { closeAt, maybeCloseAt } from './market-data'
 import { BOGLE_NPC_ID } from './npc'
 import { CHART_WINDOW_DAYS, STARTING_CASH } from './rules'
 import type { GameState, OrderSide } from './state'
@@ -102,8 +102,8 @@ function movingAverageSeries(window: Window): ChartSeries[] {
   const long: ChartSeries = { role: 'sma50', points: [] }
   for (let day = window.start; day <= window.end; day++) {
     const elapsed = window.elapsed(day)
-    const over20 = sma(day, 20)
-    const over50 = sma(day, 50)
+    const over20 = sma(maybeCloseAt, day, 20)
+    const over50 = sma(maybeCloseAt, day, 50)
     if (over20 !== null) short.points.push({ day: elapsed, value: window.rebase(over20) })
     if (over50 !== null) long.points.push({ day: elapsed, value: window.rebase(over50) })
   }
@@ -114,7 +114,7 @@ function bollingerSeries(window: Window): ChartSeries[] {
   const upper: ChartSeries = { role: 'bollingerUpper', points: [] }
   const lower: ChartSeries = { role: 'bollingerLower', points: [] }
   for (let day = window.start; day <= window.end; day++) {
-    const bands = bollingerBands(day)
+    const bands = bollingerBands(maybeCloseAt, day)
     if (bands === null) continue
     const elapsed = window.elapsed(day)
     upper.points.push({ day: elapsed, value: window.rebase(bands.upper) })

@@ -1,69 +1,73 @@
 import { describe, expect, it } from 'vitest'
 import { COMMENT_COPY, commentaryText } from './comment-copy'
-import { COMMENT_POOLS, maybeUpdateCommentary, pickCategory } from './comments'
+import {
+  COMMENT_POOLS,
+  type CommentaryHost,
+  type CommentarySituation,
+  maybeUpdateCommentary,
+  pickCategory,
+} from './comments'
 import { COMMENT_INTERVAL_DAYS } from './rules'
-import { currentPrice } from './selectors'
-import type { GameState } from './state'
-import { freshRun, tickTimes } from './test-support'
 
-/** A run far enough along that a commentary slot is open on this tick. */
-function slotOpen(state: GameState): GameState {
-  return { ...state, day: state.startDay + COMMENT_INTERVAL_DAYS, lastCommentDay: 0 }
+/** A plainly invested, plainly winning run, which each test below varies one field of. */
+const INVESTED: CommentarySituation = {
+  elapsedDays: COMMENT_INTERVAL_DAYS,
+  tradeCount: 0,
+  investedValue: 10_000,
+  cash: 0,
+  aheadOfBenchmark: true,
+}
+
+function host(rngState: number): CommentaryHost {
+  return { rngState, lastCommentDay: 0, commentaryKey: null }
 }
 
 describe('pickCategory', () => {
   it('calls out a player who trades constantly', () => {
-    const state = slotOpen(freshRun(2))
-    expect(pickCategory({ ...state, tradeCount: 50 })).toBe('overtrading')
+    expect(pickCategory({ ...INVESTED, tradeCount: 50 })).toBe('overtrading')
   })
 
   it('calls out a player holding nothing but cash', () => {
-    const state = slotOpen(freshRun(2))
-    expect(pickCategory({ ...state, shares: 0, cash: 10_000 })).toBe('sittingInCash')
+    expect(pickCategory({ ...INVESTED, investedValue: 0, cash: 10_000 })).toBe('sittingInCash')
   })
 
   it('reads the gap against the benchmark when the player is actually invested', () => {
-    const state = slotOpen(freshRun(2))
-    const price = currentPrice(state)
-    const winning: GameState = { ...state, cash: 0, shares: 100_000 / price }
-    const losing: GameState = { ...state, cash: 0, shares: 1 / price }
-    expect(pickCategory(winning)).toBe('winning')
-    expect(pickCategory(losing)).toBe('losing')
+    expect(pickCategory(INVESTED)).toBe('winning')
+    expect(pickCategory({ ...INVESTED, aheadOfBenchmark: false })).toBe('losing')
   })
 })
 
 describe('maybeUpdateCommentary', () => {
   it('says nothing again until the interval has passed', () => {
-    const state = tickTimes(freshRun(2), 3)
-    const quiet: GameState = { ...state, lastCommentDay: 2 }
-    expect(maybeUpdateCommentary(quiet)).toBe(quiet)
+    const quiet = { ...host(7), lastCommentDay: 2 }
+    const soon = { ...INVESTED, elapsedDays: 3 }
+    expect(maybeUpdateCommentary(quiet, soon)).toBe(quiet)
   })
 
   it('advances the counter even on a tick it stays quiet, so the sequence is one stream', () => {
-    const state = slotOpen(freshRun(2))
+    let state = host(11)
     let silentRolls = 0
-    let withCounter = state
     for (let attempt = 0; attempt < 40; attempt++) {
-      const after = maybeUpdateCommentary(withCounter)
-      expect(after.rngState).not.toBe(withCounter.rngState)
+      const after = maybeUpdateCommentary(state, INVESTED)
+      expect(after.rngState).not.toBe(state.rngState)
       if (after.commentaryKey === null) silentRolls += 1
-      withCounter = slotOpen({ ...after, commentaryKey: null, rngState: after.rngState })
+      state = { ...after, lastCommentDay: 0, commentaryKey: null }
     }
     expect(silentRolls).toBeGreaterThan(0)
   })
 
   it('eventually picks a line, and only ever one the copy table can render', () => {
-    let state = slotOpen(freshRun(2))
+    let state = host(11)
     for (let attempt = 0; attempt < 40 && state.commentaryKey === null; attempt++) {
-      state = slotOpen(maybeUpdateCommentary(state))
+      state = { ...maybeUpdateCommentary(state, INVESTED), lastCommentDay: 0 }
     }
     expect(state.commentaryKey).not.toBeNull()
     expect(commentaryText(state.commentaryKey)).not.toBe('')
   })
 
   it('is deterministic for a given counter', () => {
-    const state = slotOpen(freshRun(2))
-    expect(maybeUpdateCommentary(state)).toEqual(maybeUpdateCommentary(state))
+    const state = host(11)
+    expect(maybeUpdateCommentary(state, INVESTED)).toEqual(maybeUpdateCommentary(state, INVESTED))
   })
 })
 

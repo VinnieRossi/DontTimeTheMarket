@@ -6,9 +6,13 @@ You get a randomized slice of real market history with the calendar dates and th
 hidden, ten thousand dollars, and every lever a brokerage app would give you: market orders, limit
 orders, stop-losses, moving averages, RSI, MACD, the yield curve, and the money supply, if you
 want it.
+Play index mode against the whole market as one line, or portfolio mode, which has you build a
+basket of real companies shown under generated names.
 
-At the end you are scored against the Bogle NPC, a benchmark that bought the index on day one and
-then did nothing at all. Most runs lose to it. That is the joke, and it is also the point.
+At the end you are scored against the Bogle NPC, a benchmark that bought the same thing on day one
+and then did nothing at all.
+Most runs lose to it.
+That is the joke, and it is also the point.
 
 ## Running it
 
@@ -39,6 +43,7 @@ Node and pnpm, at the versions in `.nvmrc` and `package.json`.
 | `pnpm test:visual` | Visual regression against the app and every story, at desktop and phone width |
 | `pnpm test:visual:update` | Regenerates the committed baselines after an intentional visual change |
 | `pnpm bake-data` | Refetches the market history from FRED and rewrites the committed data |
+| `pnpm bake-stocks` | Refetches the portfolio mode company roster and rewrites the committed data |
 
 ## What is in here
 
@@ -89,6 +94,15 @@ The dividend yield is the one figure that is not fetched: FRED has no free, no-k
 dividend series for the index, so the engine applies a flat, disclosed annual yield instead. The
 volume readout is synthetic and labeled as such, because the baked series is close-only.
 
+Portfolio mode plays against a roster of real companies, baked the same way from three sources:
+daily closes and dividend events from Yahoo Finance's unofficial chart endpoint, fundamentals from
+SEC EDGAR's XBRL API, and the company and sector list from Wikipedia's "List of S&P 500 companies."
+Nothing at runtime contacts any of them either.
+Refresh the roster with `pnpm bake-stocks`.
+Every free source of per-company history serves only companies still listed today, so the roster
+is a survivors-only sample, and the builder screen says so.
+See `docs/adr/0006-portfolio-mode-as-a-second-run-shape.md` for the design behind it.
+
 ## The gate
 
 One command runs every check, and the same command runs everywhere: pre-commit runs its staged
@@ -125,4 +139,6 @@ suite drives real flows through a run and is part of `pnpm verify` like everythi
   equivalent once there is a production deployment to watch.
 - **Branch protection.** The CI workflow runs on every pull request, but nothing in this
   repository can require it to pass before a merge; configure that in the repository settings.
-- **One mode.** Index mode only: one instrument, one benchmark.
+- **One benchmark.** Both modes score against the Bogle NPC and nothing else.
+- **A survivors-only roster.** Portfolio mode can only offer companies that are still listed, and
+  the builder says so rather than hiding it.

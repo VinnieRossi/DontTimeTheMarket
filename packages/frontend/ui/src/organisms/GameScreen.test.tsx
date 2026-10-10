@@ -11,6 +11,7 @@ function renderScreen(overrides: Partial<GameScreenProps> = {}) {
     onOpenData: vi.fn(),
     onOpenSettings: vi.fn(),
     onCashOut: vi.fn(),
+    onRebalance: vi.fn(),
   }
   const rendered = render(
     <GameScreen
@@ -93,5 +94,37 @@ describe('GameScreen', () => {
   it('shows the readouts a player switched on', () => {
     renderScreen({ readouts: [{ key: 'rsi', label: 'RSI (14)', value: '61.4' }] })
     expect(screen.getByText('61.4')).toBeVisible()
+  })
+
+  it('holds no holdings panel and no rebalance for a run with one position', () => {
+    renderScreen()
+    expect(screen.queryByRole('heading', { name: 'Your holdings' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Rebalance' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Trade' })).toBeVisible()
+  })
+
+  it('shows what a basket holds, under a heading, when it is handed one', () => {
+    renderScreen({ holdings: <div data-testid="holdings-slot" /> })
+    expect(screen.getByRole('heading', { name: 'Your holdings' })).toBeVisible()
+    expect(screen.getByTestId('holdings-slot')).toBeVisible()
+  })
+
+  it('offers a rebalance only to a run that has weights to restore', async () => {
+    const handlers = renderScreen({ rebalance: { label: 'Rebalance', enabled: true } })
+    await userEvent.click(screen.getByRole('button', { name: 'Rebalance' }))
+    expect(handlers.onRebalance).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses a rebalance its owner turned off', async () => {
+    const handlers = renderScreen({ rebalance: { label: 'Nothing to rebalance', enabled: false } })
+    const button = screen.getByRole('button', { name: 'Nothing to rebalance' })
+    expect(button).toBeDisabled()
+    await userEvent.click(button)
+    expect(handlers.onRebalance).not.toHaveBeenCalled()
+  })
+
+  it('names the trade button after what it opens', () => {
+    renderScreen({ tradeLabel: 'Buy a company' })
+    expect(screen.getByRole('button', { name: 'Buy a company' })).toBeVisible()
   })
 })

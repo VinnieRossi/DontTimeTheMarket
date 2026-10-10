@@ -4,8 +4,10 @@ Don't Time The Market is a game about the gap between what trading feels like an
 returns.
 A player gets a randomized slice of real market history with the dates and the price level
 hidden, ten thousand dollars, and every lever a brokerage app would give them.
-At the end the run is scored against the Bogle NPC: a benchmark that bought the index on day one
-and then did nothing at all.
+There are two ways to play: index mode trades the whole market as one line, and portfolio mode
+has the player build a basket of real companies shown under generated names.
+At the end the run is scored against the Bogle NPC: a benchmark that bought the same thing on day
+one and then did nothing at all.
 
 This note is what the rest of the repository routes back to.
 It carries the layer table, the rules that are stricter than the layers alone, and the decisions
@@ -25,8 +27,9 @@ The market history it plays against is committed to the repository rather than f
 The whole game is one pure function.
 
 ```
-startRun(seed, runLength)          -> the opening state
-step(state, action)                -> the next state
+startRun(seed, runLength)                        -> an index run's opening state
+startPortfolioRun(seed, runLength, allocations)  -> a portfolio run's opening state
+step(state, action)                              -> the next state, for either
 ```
 
 `step` reads no clock, no environment, and no random source.
@@ -43,7 +46,7 @@ The engine never schedules anything.
 ## Data flow
 
 ```
-baked market history (committed JSON)
+baked market history (committed JSON: the index series, and the company roster on demand)
     -> engine: step(state, action), a pure reducer over a seeded state
     -> hook: holds the state, owns the clock, dispatches actions
     -> view mapping: a run becomes formatted strings and decided states
@@ -94,8 +97,11 @@ because an unregistered package is a package nobody reviewed.
 ## Single source of truth
 
 The engine owns the model of a run.
-`GameState` is defined once, in `@dttm/engine`, and every rule about what a run is, costs, or
+`RunState` is defined once, in `@dttm/engine`, and every rule about what a run is, costs, or
 scores lives beside it.
+It is a union of two shapes, an index run and a portfolio run, discriminated by `mode`; one
+`step` takes either, and every rule both of them obey lives in a module that knows about neither.
+See `docs/adr/0006-portfolio-mode-as-a-second-run-shape.md`.
 Nothing downstream restates it: the view mapping in `apps/web` turns a state into strings, and
 the components take the strings.
 
@@ -142,5 +148,9 @@ See `docs/adr/0002-no-confirmation-prompts-in-the-agent-permissions.md` for the 
   equivalent once there is a production deployment to watch.
 - **Branch protection.** The CI workflow runs on every pull request, but nothing in this
   repository can require it to pass before a merge; configure that in the repository settings.
-- **One mode.** Index mode only: one instrument, one benchmark. The engine models a benchmark
-  generically, so a second one is a new entry in a list rather than a change to the reducer.
+- **One benchmark.** Both modes score against the Bogle NPC and nothing else. The engine models
+  a benchmark generically, so a second one is a new entry in a list rather than a change to the
+  reducer.
+- **A survivors-only roster.** Portfolio mode can only offer companies that are still listed,
+  because no free source of daily history serves the ones that went to zero. The builder says so
+  rather than hiding it.

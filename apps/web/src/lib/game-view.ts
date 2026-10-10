@@ -11,7 +11,7 @@ import {
   type GameState,
   hasRoomToContinue,
   type IndicatorToggles,
-  indicatorChips,
+  indexIndicatorChips,
   MIN_SCORING_DAYS,
   npcValue,
   type PendingOrder,
@@ -148,7 +148,7 @@ export function legendFor(state: GameState): readonly ChartLegendItem[] {
 }
 
 export function readoutsFor(state: GameState): readonly ReadoutItem[] {
-  return indicatorChips(state)
+  return indexIndicatorChips(state)
 }
 
 export function playerFigure(state: GameState): FigureView {
@@ -176,7 +176,7 @@ export function tilesFor(state: GameState): readonly FigureView[] {
   ]
 }
 
-export function commentaryFor(state: GameState): string | undefined {
+export function commentaryFor(state: { commentaryKey: string | null }): string | undefined {
   const text = commentaryText(state.commentaryKey)
   return text === '' ? undefined : text
 }
@@ -187,11 +187,18 @@ export function cashOutAction(state: GameState): ActionView {
     : { label: `Cash out (unlocks day ${MIN_SCORING_DAYS})`, enabled: false }
 }
 
-export function complexityFor(state: GameState): string {
-  return complexityLabel(indicatorChips(state).length)
+/**
+ * The joke label for how cluttered the screen has become. It takes the readouts rather than the
+ * run, because what is on the screen is the same question in either mode even though the two
+ * compute their readouts from different series.
+ */
+export function complexityFor(readouts: readonly ReadoutItem[]): string {
+  return complexityLabel(readouts.length)
 }
 
-export function indicatorTiers(state: GameState): readonly IndicatorTierView[] {
+export function indicatorTiers(state: {
+  indicators: IndicatorToggles
+}): readonly IndicatorTierView[] {
   return INDICATOR_TIERS.map((tier) => ({
     name: tier.name,
     items: tier.items.map((item) => ({
@@ -202,7 +209,7 @@ export function indicatorTiers(state: GameState): readonly IndicatorTierView[] {
   }))
 }
 
-export function realismSwitches(state: GameState): readonly SwitchItemView[] {
+export function realismSwitches(state: { settings: RealismSettings }): readonly SwitchItemView[] {
   return REALISM_SWITCHES.map((item) => ({
     key: item.key,
     label: item.label,
@@ -233,37 +240,71 @@ const WON_VERDICT =
 const LOST_VERDICT =
   'Most players lose to a patient buy-and-hold benchmark. You are now most players. There is some comfort in that, probably.'
 
-function continueAction(state: GameState, won: boolean): ActionView {
-  if (!won) return { label: 'Continue (only available when winning)', enabled: false }
-  if (!hasRoomToContinue(state)) {
-    return { label: 'Out of history to continue into', enabled: false }
-  }
-  return { label: 'Continue this run', enabled: canContinue(state) }
+/** What a finished run reports, whichever kind of run it was. */
+export interface RunOutcome {
+  /** Annualized outperformance over the benchmark, in basis points. */
+  edge: number
+  totalReturnPct: number
+  /** The deepest drawdown, as the engine carries it: a negative fraction. */
+  maxDrawdownPct: number
+  tradeCount: number
+  /** Everything the run paid in tax and spread. */
+  costs: number
+  continueEnabled: boolean
+  hasRoomToContinue: boolean
 }
 
-export function endScreenView(state: GameState): EndScreenView {
-  const edge = edgeBpsVs(state, BOGLE_NPC_ID)
-  const won = edge >= 0
-  const totalReturn = totalReturnPct(state)
+function continueAction(outcome: RunOutcome, won: boolean): ActionView {
+  if (!won) return { label: 'Continue (only available when winning)', enabled: false }
+  if (!outcome.hasRoomToContinue) {
+    return { label: 'Out of history to continue into', enabled: false }
+  }
+  return { label: 'Continue this run', enabled: outcome.continueEnabled }
+}
+
+/**
+ * The scoreboard, written from an outcome rather than from a run.
+ *
+ * Both kinds of run land on the same board and are ranked by the same number, so they read from
+ * the same copy: an index run and a portfolio run that both beat the benchmark by 184 basis points
+ * did equally well, and a screen that worded the two differently would have implied otherwise.
+ */
+export function endScreenCopy(outcome: RunOutcome): EndScreenView {
+  const won = outcome.edge >= 0
   return {
     heading: won ? `You beat the ${BENCHMARK_NAME}` : `The ${BENCHMARK_NAME} wins this one`,
-    edge: formatBasisPoints(edge),
+    edge: formatBasisPoints(outcome.edge),
     won,
     verdict: won ? WON_VERDICT : LOST_VERDICT,
     scores: [
-      { label: 'Total return', value: formatPercent(totalReturn) },
-      { label: 'Max drawdown', value: formatPercent(state.maxDrawdownPct * 100) },
-      { label: 'Trades placed', value: String(state.tradeCount) },
-      { label: 'Tax + fees paid', value: formatMoney(state.taxPaid + state.feesPaid) },
+      { label: 'Total return', value: formatPercent(outcome.totalReturnPct) },
+      { label: 'Max drawdown', value: formatPercent(outcome.maxDrawdownPct * 100) },
+      { label: 'Trades placed', value: String(outcome.tradeCount) },
+      { label: 'Tax + fees paid', value: formatMoney(outcome.costs) },
     ],
-    continueAction: continueAction(state, won),
+    continueAction: continueAction(outcome, won),
   }
+}
+
+export function endScreenView(state: GameState): EndScreenView {
+  return endScreenCopy({
+    edge: edgeBpsVs(state, BOGLE_NPC_ID),
+    totalReturnPct: totalReturnPct(state),
+    maxDrawdownPct: state.maxDrawdownPct,
+    tradeCount: state.tradeCount,
+    costs: state.taxPaid + state.feesPaid,
+    continueEnabled: canContinue(state),
+    hasRoomToContinue: hasRoomToContinue(state),
+  })
 }
 
 export const START_SCREEN_COPY = {
   heading: 'Think you can beat the market?',
   lede: `Trade a real, randomized slice of market history. Calendar dates and price levels are hidden, so no peeking at "oh, it's 2008." At the end, we compare you to the ${BENCHMARK_NAME}: a disciplined buy-and-hold benchmark that never panics and never skips a dividend.`,
-  footnote: 'Scores are not saved anywhere yet; this build is index mode only.',
+  footnote:
+    'Scores are not saved anywhere yet. Index mode trades the whole market as one line; portfolio mode has you pick individual companies under generated names.',
+  startLabel: 'Start run (index mode)',
+  secondaryLabel: 'Build a stock portfolio instead',
 } as const
 
 export const BRAND = "Don't Time The Market"

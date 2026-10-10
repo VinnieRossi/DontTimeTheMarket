@@ -16,7 +16,8 @@
       "!**/storybook-static",
       "!**/.turbo",
       "!**/*.gen.ts",
-      "!pnpm-lock.yaml"
+      "!pnpm-lock.yaml",
+      "!**/data/baked"
     ]
   },
   "formatter": {

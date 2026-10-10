@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { SAMPLE_SCORES } from '../story-support'
+import { SAMPLE_REVEAL, SAMPLE_SCORES } from '../story-support'
 import { EndScreen } from './EndScreen'
 
 const meta = {
@@ -38,4 +38,12 @@ export const Lost: Story = {
 
 export const OutOfHistory: Story = {
   args: { continueAction: { label: 'Out of history to continue into', enabled: false } },
+}
+
+export const WithTheCompaniesRevealed: Story = {
+  args: {
+    reveal: SAMPLE_REVEAL,
+    revealNote:
+      'Generated names, real companies. You were judging the price line and the filings, which is the whole idea.',
+  },
 }

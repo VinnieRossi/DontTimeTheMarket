@@ -23,3 +23,10 @@ type Story = StoryObj<typeof meta>
 
 export const Standard: Story = {}
 export const LongRun: Story = { args: { selectedRunLength: 'long' } }
+
+export const WithPortfolioModeOffered: Story = {
+  args: {
+    secondaryLabel: 'Build a stock portfolio instead',
+    onSecondary: () => undefined,
+  },
+}

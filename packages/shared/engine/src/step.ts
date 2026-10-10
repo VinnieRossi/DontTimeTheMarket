@@ -4,14 +4,18 @@ import { processDividends } from './dividends'
 import { DEFAULT_INDICATORS } from './indicators'
 import { processInterest } from './interest'
 import { closeAt, MAX_START_DAY, MIN_START_DAY, SERIES_LENGTH } from './market-data'
-import { updateMomentum } from './momentum'
+import { EMPTY_MOMENTUM, updateMomentum } from './momentum'
 import { BOGLE_NPC_ID, createInitialNpcs } from './npc'
 import { processPendingOrders } from './orders'
+import type { PortfolioRunState } from './portfolio-state'
+import { stepPortfolio } from './portfolio-step'
 import { nextInt } from './rng'
 import { MIN_SCORING_DAYS, RUN_LENGTH_DAYS, type RunLength, STARTING_CASH } from './rules'
-import { canContinue, elapsedDays, playerValue } from './selectors'
+import type { RunState } from './run-state'
+import { canContinue, currentPrice, edgeBpsVs, elapsedDays, playerValue } from './selectors'
 import { DEFAULT_SETTINGS } from './settings'
 import type { Action, GameState } from './state'
+import { advanceDrawdown } from './trade-math'
 
 /**
  * The whole simulation is this one pure function. Nothing in here reads the clock, the
@@ -19,14 +23,19 @@ import type { Action, GameState } from './state'
  * draw advances a counter carried in the state. Two runs of the same seed and the same action
  * sequence therefore produce byte-identical states, which is what would let a score be verified
  * by replay rather than trusted.
+ *
+ * A run is either an index run or a portfolio run. `step` takes either and routes by the run's
+ * own `mode`; what the two kinds of day share is every rule about what a trade costs or scores,
+ * which lives in modules both of them call rather than being written twice.
  */
 
-/** Opens a fresh run at a seeded random point in the baked history. */
+/** Opens a fresh index run at a seeded random point in the baked history. */
 export function startRun(seed: number, runLength: RunLength): GameState {
   const draw = nextInt(seed, MAX_START_DAY - MIN_START_DAY)
   const startDay = MIN_START_DAY + draw.value
 
   return {
+    mode: 'index',
     phase: 'running',
     seed,
     rngState: draw.state,
@@ -42,7 +51,7 @@ export function startRun(seed: number, runLength: RunLength): GameState {
     npcs: createInitialNpcs(startDay),
     settings: DEFAULT_SETTINGS,
     indicators: DEFAULT_INDICATORS,
-    momentum: { avgGain: 0, avgLoss: 0, ema12: null, ema26: null, signalEma: null },
+    momentum: EMPTY_MOMENTUM,
     tradeLog: [],
     valueHistory: [
       { day: startDay, playerValue: STARTING_CASH, npcValues: { [BOGLE_NPC_ID]: STARTING_CASH } },
@@ -83,19 +92,22 @@ function tick(state: GameState): GameState {
   next = updateMomentum(next)
 
   const value = playerValue(next)
-  const peakValue = Math.max(next.peakValue, value)
-
   next = {
     ...next,
-    peakValue,
-    maxDrawdownPct: Math.min(next.maxDrawdownPct, (value - peakValue) / peakValue),
+    ...advanceDrawdown(next, value),
     valueHistory: [
       ...next.valueHistory,
       { day: next.day, playerValue: value, npcValues: npcValues(next) },
     ],
   }
 
-  next = maybeUpdateCommentary(next)
+  next = maybeUpdateCommentary(next, {
+    elapsedDays: elapsedDays(next),
+    tradeCount: next.tradeCount,
+    investedValue: next.shares * currentPrice(next),
+    cash: next.cash,
+    aheadOfBenchmark: edgeBpsVs(next, BOGLE_NPC_ID) >= 0,
+  })
 
   if (elapsedDays(next) >= next.horizonDays) return { ...next, phase: 'ended' }
   return next
@@ -114,7 +126,7 @@ function continueRun(state: GameState): GameState {
   }
 }
 
-export function step(state: GameState, action: Action): GameState {
+function stepIndex(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'START_RUN':
       return startRun(action.seed, action.runLength)
@@ -130,6 +142,9 @@ export function step(state: GameState, action: Action): GameState {
       }
     case 'CANCEL_ORDER':
       return { ...state, pending: state.pending.filter((order) => order.id !== action.id) }
+    case 'REBALANCE':
+      // An index run holds one position, so there are no weights to restore between.
+      return state
     case 'SET_SETTING':
       return { ...state, settings: { ...state.settings, [action.key]: action.value } }
     case 'SET_INDICATOR':
@@ -142,4 +157,16 @@ export function step(state: GameState, action: Action): GameState {
     default:
       return assertNever(action, 'action')
   }
+}
+
+/*
+ * Overloaded so a caller that knows which kind of run it holds keeps that knowledge through the
+ * call. Without it, every index-mode call site would have to narrow a union back down to the
+ * shape it handed in.
+ */
+export function step(state: GameState, action: Action): GameState
+export function step(state: PortfolioRunState, action: Action): PortfolioRunState
+export function step(state: RunState, action: Action): RunState
+export function step(state: RunState, action: Action): RunState {
+  return state.mode === 'portfolio' ? stepPortfolio(state, action) : stepIndex(state, action)
 }

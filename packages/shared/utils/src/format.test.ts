@@ -5,6 +5,8 @@ import {
   formatPercent,
   formatShares,
   formatSignedPercent,
+  formatSignedPoints,
+  formatWholePercent,
 } from './format'
 
 describe('formatMoney', () => {
@@ -48,5 +50,21 @@ describe('formatShares', () => {
   it('keeps two places, because a dollar-sized buy rarely lands on a whole share', () => {
     expect(formatShares(62.4149)).toBe('62.41')
     expect(formatShares(0)).toBe('0.00')
+  })
+})
+
+describe('formatSignedPoints', () => {
+  it('reads a gap between two percentages in points, with its sign', () => {
+    expect(formatSignedPoints(8.04)).toBe('+8.0 pts')
+    expect(formatSignedPoints(-4.02)).toBe('-4.0 pts')
+    expect(formatSignedPoints(0)).toBe('+0.0 pts')
+  })
+})
+
+describe('formatWholePercent', () => {
+  it('rounds to a whole percentage, for a figure set in whole steps', () => {
+    expect(formatWholePercent(33)).toBe('33%')
+    expect(formatWholePercent(33.4)).toBe('33%')
+    expect(formatWholePercent(0)).toBe('0%')
   })
 })
