@@ -148,9 +148,11 @@ See `docs/adr/0002-no-confirmation-prompts-in-the-agent-permissions.md` for the 
   equivalent once there is a production deployment to watch.
 - **Branch protection.** The CI workflow runs on every pull request, but nothing in this
   repository can require it to pass before a merge; configure that in the repository settings.
-- **One benchmark.** Both modes score against the Bogle NPC and nothing else. The engine models
-  a benchmark generically, so a second one is a new entry in a list rather than a change to the
-  reducer.
+- **Scoring has one benchmark.** The win condition and the annualized edge compare only to the
+  Bogle NPC. The S&P 500, Nasdaq-100, and Berkshire NPCs in `external-npcs.ts` show for
+  comparison wherever a run's start day falls within their own real history. Each is priced off
+  its own series rather than the game's internal index, so adding one took a state field and
+  reducer changes, not just a list entry the way a second benchmark on the internal index would.
 - **A survivors-only roster.** Portfolio mode can only offer companies that are still listed,
   because no free source of daily history serves the ones that went to zero. The builder says so
   rather than hiding it.

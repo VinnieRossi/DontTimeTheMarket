@@ -13,6 +13,9 @@ At the end you are scored against the Bogle NPC, a benchmark that bought the sam
 and then did nothing at all.
 Most runs lose to it.
 That is the joke, and it is also the point.
+Wherever a run's dates overlap their own real history, you also see how the S&P 500, the
+Nasdaq-100, and Berkshire Hathaway did over the same stretch, for comparison; none of them affect
+the score.
 
 ## Running it
 
@@ -44,6 +47,7 @@ Node and pnpm, at the versions in `.nvmrc` and `package.json`.
 | `pnpm test:visual:update` | Regenerates the committed baselines after an intentional visual change |
 | `pnpm bake-data` | Refetches the market history from FRED and rewrites the committed data |
 | `pnpm bake-stocks` | Refetches the portfolio mode company roster and rewrites the committed data |
+| `pnpm bake-npc-series` | Refetches the S&P 500, Nasdaq-100, and Berkshire benchmark NPC series and rewrites the committed data |
 
 ## What is in here
 
@@ -94,6 +98,13 @@ The dividend yield is the one figure that is not fetched: FRED has no free, no-k
 dividend series for the index, so the engine applies a flat, disclosed annual yield instead. The
 volume readout is synthetic and labeled as such, because the baked series is close-only.
 
+The S&P 500, Nasdaq-100, and Berkshire benchmark NPCs are priced off their own real daily history
+instead of the game's index: SPY, QQQ, and BRK.A closes and dividends from Yahoo Finance, aligned
+onto the same daily grid and committed the same way.
+Nothing at runtime contacts Yahoo either.
+Refresh them with `pnpm bake-npc-series`.
+A run that opens before one of them has its own first real print simply does not show that NPC.
+
 Portfolio mode plays against a roster of real companies, baked the same way from three sources:
 daily closes and dividend events from Yahoo Finance's unofficial chart endpoint, fundamentals from
 SEC EDGAR's XBRL API, and the company and sector list from Wikipedia's "List of S&P 500 companies."
@@ -139,6 +150,8 @@ suite drives real flows through a run and is part of `pnpm verify` like everythi
   equivalent once there is a production deployment to watch.
 - **Branch protection.** The CI workflow runs on every pull request, but nothing in this
   repository can require it to pass before a merge; configure that in the repository settings.
-- **One benchmark.** Both modes score against the Bogle NPC and nothing else.
+- **Scoring has one benchmark.** Both modes score against the Bogle NPC alone. The S&P 500,
+  Nasdaq-100, and Berkshire NPCs show for comparison when a run's dates overlap their own history,
+  but do not affect the score.
 - **A survivors-only roster.** Portfolio mode can only offer companies that are still listed, and
   the builder says so rather than hiding it.
