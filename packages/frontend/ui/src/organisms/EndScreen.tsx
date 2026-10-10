@@ -1,6 +1,7 @@
 import { Button } from '../atoms/Button'
 import { Stat } from '../atoms/Stat'
 import type { ActionView, FigureView } from '../domain/game-view'
+import type { RevealRowView } from '../domain/portfolio-view'
 import { cn } from '../lib/cn'
 import { Card } from '../molecules/Card'
 
@@ -12,6 +13,13 @@ export interface EndScreenProps {
   verdict: string
   scores: readonly FigureView[]
   continueAction: ActionView
+  /**
+   * Who the companies actually were. A portfolio run fills this in; an index run has nothing to
+   * reveal, since the one thing it traded was never disguised in the first place.
+   */
+  reveal?: readonly RevealRowView[]
+  revealHeading?: string
+  revealNote?: string
   onContinue: () => void
   onPlayAgain: () => void
 }
@@ -24,6 +32,9 @@ export function EndScreen({
   verdict,
   scores,
   continueAction,
+  reveal,
+  revealHeading = 'Who you were actually holding',
+  revealNote,
   onContinue,
   onPlayAgain,
 }: EndScreenProps) {
@@ -44,6 +55,24 @@ export function EndScreen({
           />
         ))}
       </div>
+
+      {reveal !== undefined && reveal.length > 0 && (
+        <div className="app-end__reveal">
+          <h2 className="app-heading app-heading--sm">{revealHeading}</h2>
+          {revealNote !== undefined && <p className="app-text-muted">{revealNote}</p>}
+          <ul className="app-reveal">
+            {reveal.map((row) => (
+              <li key={row.assetId} className="app-reveal__row">
+                <span className="app-reveal__disguise">
+                  {row.ticker} {'·'} {row.fakeName}
+                </span>
+                <span className="app-reveal__real">{row.realName}</span>
+                <span className="app-reveal__detail">{row.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="app-end__actions">
         <Button size="lg" fullWidth disabled={!continueAction.enabled} onClick={onContinue}>

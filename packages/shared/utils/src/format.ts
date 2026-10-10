@@ -29,6 +29,20 @@ export function formatBasisPoints(value: number): string {
   return `${value >= 0 ? '+' : ''}${Math.round(value)} bps`
 }
 
+/**
+ * A difference between two percentages, in percentage points, to one decimal place and signed.
+ * It reads in points rather than as a percent because a holding at 41% against a 33% target is
+ * eight points away, not eight percent away, and saying percent there invites the wrong reading.
+ */
+export function formatSignedPoints(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(1)} pts`
+}
+
+/** A whole percentage, for a figure a player sets in whole steps. */
+export function formatWholePercent(value: number): string {
+  return `${Math.round(value)}%`
+}
+
 /** A share count, to two decimal places, because a dollar-sized buy rarely lands on a whole one. */
 export function formatShares(value: number): string {
   return value.toFixed(2)

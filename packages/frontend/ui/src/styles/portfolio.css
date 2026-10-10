@@ -1,0 +1,385 @@
+/*
+ * The portfolio screens: the builder, the holdings panel on the running screen, one company's
+ * panel, and the end-of-run reveal. Split out from `screens.css` to keep each file short enough
+ * to read in one sitting, which the repository checks rather than trusts.
+ *
+ * Small-screen first, like the rest. The roster is a single column on a phone and two across once
+ * there is room for two, which is the only breakpoint any of this needs.
+ */
+.app-start__alternative {
+  margin-top: var(--app-space-4);
+}
+
+.app-roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+}
+
+.app-roster__groups {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: var(--app-space-1);
+  scrollbar-width: none;
+}
+
+/*
+ * The sector chips scroll sideways rather than wrapping, so each one has to keep its own width
+ * and its own line. Without this they squeeze to fit the viewport and a two-word sector breaks
+ * across two lines inside the pill.
+ */
+.app-roster__groups > .app-chip {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Once there is room for them to wrap, they wrap: a scrolling row hides options a wide screen
+ * has space to show. */
+@media (min-width: 560px) {
+  .app-roster__groups {
+    overflow-x: visible;
+    flex-wrap: wrap;
+  }
+}
+
+.app-roster__groups::-webkit-scrollbar {
+  display: none;
+}
+
+.app-roster__empty {
+  margin: 0;
+}
+
+.app-roster__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--app-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 560px) {
+  .app-roster__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.app-company {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface-raised);
+  overflow: hidden;
+}
+
+.app-company--selected {
+  border-color: var(--app-accent);
+  background: var(--app-tone-info-soft);
+}
+
+.app-company__pick {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--app-space-1);
+  padding: var(--app-space-6);
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-company__ticker {
+  color: var(--app-accent);
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-heavy);
+}
+
+.app-company__name {
+  color: var(--app-ink);
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-company__where {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+}
+
+.app-company__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-1);
+  margin-top: var(--app-space-2);
+}
+
+.app-company__more {
+  padding: var(--app-space-3);
+  border: none;
+  border-top: 1px solid var(--app-border);
+  background: none;
+  color: var(--app-ink-muted);
+  font-family: inherit;
+  font-size: var(--app-text-xs);
+  font-weight: var(--app-weight-bold);
+  cursor: pointer;
+}
+
+/* How the money is split, and whether it adds up. */
+.app-alloc__rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-alloc__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-5);
+  padding: var(--app-space-4) 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-alloc__who {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.app-alloc__ticker {
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-heavy);
+}
+
+.app-alloc__name {
+  overflow: hidden;
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-alloc__total {
+  margin: var(--app-space-5) 0 0;
+  padding: var(--app-space-4) var(--app-space-6);
+  border-radius: var(--app-radius-sm);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-heavy);
+}
+
+.app-alloc__total--ok {
+  background: var(--app-tone-success-soft);
+  color: var(--app-tone-success);
+}
+
+.app-alloc__total--off {
+  background: var(--app-tone-danger-soft);
+  color: var(--app-tone-danger);
+}
+
+/* Famous collapses, as history rather than as something to trade. */
+.app-hof {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  margin: var(--app-space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-hof__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+  padding: var(--app-space-5) var(--app-space-6);
+  border: 1.5px dashed var(--app-border);
+  border-radius: var(--app-radius-sm);
+}
+
+.app-hof__name {
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-hof__note {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-sm);
+  line-height: var(--app-leading-normal);
+}
+
+/* What the portfolio holds, one tappable row apiece. */
+.app-game__holdings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+}
+
+.app-holdings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-holding {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--app-space-3) var(--app-space-5);
+  padding: var(--app-space-5) var(--app-space-6);
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-sunken);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-holding .app-spark {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: var(--app-space-9);
+}
+
+.app-holding__who {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.app-holding__ticker {
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-heavy);
+}
+
+.app-holding__name {
+  overflow: hidden;
+  font-size: var(--app-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-holding__detail {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-2xs);
+}
+
+.app-holding__figures {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.app-holding__value {
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-heavy);
+}
+
+.app-holding__weight {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-2xs);
+}
+
+.app-holding__drift {
+  font-size: var(--app-text-xs);
+  font-weight: var(--app-weight-bold);
+}
+
+/* One company's panel: the truthful facts, then the trends as shapes. */
+.app-company-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-space-4);
+}
+
+.app-trends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-trend {
+  display: grid;
+  /* A trend line needs to be wider than it is tall to read as a shape rather than as a scribble. */
+  grid-template-columns: minmax(0, 1fr) calc(var(--app-space-10) * 3);
+  align-items: center;
+  gap: var(--app-space-1) var(--app-space-5);
+}
+
+.app-trend .app-spark {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  width: 100%;
+  height: var(--app-space-9);
+}
+
+.app-trend__label {
+  font-size: var(--app-text-sm);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-trend__caption {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+}
+
+/* The reveal: who the companies actually were. */
+.app-end__reveal {
+  margin-top: var(--app-space-9);
+  padding-top: var(--app-space-7);
+  border-top: 1px solid var(--app-border);
+  text-align: left;
+}
+
+.app-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  margin: var(--app-space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-reveal__row {
+  display: flex;
+  flex-direction: column;
+  padding: var(--app-space-4) var(--app-space-6);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-sunken);
+}
+
+.app-reveal__disguise {
+  color: var(--app-ink-muted);
+  font-family: var(--app-font-mono);
+  font-size: var(--app-text-xs);
+}
+
+.app-reveal__real {
+  font-family: var(--app-font-display);
+  font-size: var(--app-text-md);
+  font-weight: var(--app-weight-bold);
+}
+
+.app-reveal__detail {
+  color: var(--app-ink-muted);
+  font-size: var(--app-text-xs);
+}

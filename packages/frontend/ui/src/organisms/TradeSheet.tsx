@@ -40,6 +40,17 @@ const INITIAL: Record<TradeSide, SideForm> = {
 
 export interface TradeSheetProps {
   pending: readonly PendingOrderView[]
+  /**
+   * Which company the panel is pointed at, when the run holds more than one. It is only a label:
+   * the composition already knows what it opened the panel on and the trade comes back without it.
+   */
+  subject?: string | undefined
+  /**
+   * Hides the order-type choice, leaving market orders only. A portfolio run sets it, because a
+   * limit, a stop, and a take-profit on each of several holdings at once is a lot of interface to
+   * ask a newcomer to learn, and a basket already has enough going on.
+   */
+  marketOnly?: boolean
   onSubmit: (intent: TradeIntent) => void
   onCancelOrder: (id: number) => void
   onClose: () => void
@@ -52,7 +63,14 @@ export interface TradeSheetProps {
  * Both sides keep their own fields, because switching to the sell tab to check a size and
  * switching back should not have quietly rewritten the buy.
  */
-export function TradeSheet({ pending, onSubmit, onCancelOrder, onClose }: TradeSheetProps) {
+export function TradeSheet({
+  pending,
+  subject,
+  marketOnly = false,
+  onSubmit,
+  onCancelOrder,
+  onClose,
+}: TradeSheetProps) {
   const [side, setSide] = useState<TradeSide>('buy')
   const [forms, setForms] = useState<Record<TradeSide, SideForm>>(INITIAL)
   const [error, setError] = useState<string | undefined>(undefined)
@@ -88,7 +106,7 @@ export function TradeSheet({ pending, onSubmit, onCancelOrder, onClose }: TradeS
 
   return (
     <BottomSheet
-      title="Trade"
+      title={subject === undefined ? 'Trade' : `Trade ${subject}`}
       onClose={onClose}
       footer={
         <>
@@ -147,16 +165,18 @@ export function TradeSheet({ pending, onSubmit, onCancelOrder, onClose }: TradeS
           error={error}
           onChange={(percent) => update({ percent })}
         />
-        <SelectField
-          id="trade-order-type"
-          label="Order type"
-          value={form.orderType}
-          options={buying ? BUY_ORDER_OPTIONS : SELL_ORDER_OPTIONS}
-          onChange={(value) => {
-            if (isTradeOrderType(value)) update({ orderType: value })
-          }}
-        />
-        {form.orderType !== 'market' && (
+        {!marketOnly && (
+          <SelectField
+            id="trade-order-type"
+            label="Order type"
+            value={form.orderType}
+            options={buying ? BUY_ORDER_OPTIONS : SELL_ORDER_OPTIONS}
+            onChange={(value) => {
+              if (isTradeOrderType(value)) update({ orderType: value })
+            }}
+          />
+        )}
+        {!marketOnly && form.orderType !== 'market' && (
           <NumberField
             id="trade-trigger-price"
             label={buying ? 'Limit price' : 'Trigger price'}

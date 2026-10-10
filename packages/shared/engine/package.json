@@ -8,6 +8,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./stocks": {
+      "types": "./src/stocks.ts",
+      "default": "./src/stocks.ts"
     }
   },
   "scripts": {

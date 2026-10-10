@@ -3,7 +3,7 @@ import {
   COMPLEXITY_LABELS,
   complexityLabel,
   DEFAULT_INDICATORS,
-  indicatorChips,
+  indexIndicatorChips,
 } from './indicators'
 import type { GameState } from './state'
 import { freshRun, tickTimes } from './test-support'
@@ -18,11 +18,11 @@ function withEvery(state: GameState): GameState {
 
 describe('indicatorChips', () => {
   it('shows nothing while nothing is switched on', () => {
-    expect(indicatorChips(freshRun(4))).toEqual([])
+    expect(indexIndicatorChips(freshRun(4))).toEqual([])
   })
 
   it('shows one chip per switched-on readout that has a chip, each with a value', () => {
-    const chips = indicatorChips(withEvery(tickTimes(freshRun(4), 40)))
+    const chips = indexIndicatorChips(withEvery(tickTimes(freshRun(4), 40)))
     // Moving averages and Bollinger bands draw on the chart rather than as a chip.
     expect(chips.map((chip) => chip.key)).toEqual([
       'volume',
@@ -44,7 +44,7 @@ describe('indicatorChips', () => {
 
   it('says so rather than inventing a number when a series cannot answer for the day', () => {
     const offSeries = withEvery({ ...freshRun(4), day: -1 })
-    const values = new Map(indicatorChips(offSeries).map((chip) => [chip.key, chip.value]))
+    const values = new Map(indexIndicatorChips(offSeries).map((chip) => [chip.key, chip.value]))
     expect(values.get('vix')).toBe('n/a')
     expect(values.get('yieldCurve')).toBe('n/a')
     expect(values.get('cpi')).toBe('n/a')
@@ -52,7 +52,7 @@ describe('indicatorChips', () => {
   })
 
   it('reports the yield curve as a spread between the two baked rates', () => {
-    const chips = indicatorChips({
+    const chips = indexIndicatorChips({
       ...withEvery(freshRun(4)),
       indicators: { ...DEFAULT_INDICATORS, yieldCurve: true },
     })

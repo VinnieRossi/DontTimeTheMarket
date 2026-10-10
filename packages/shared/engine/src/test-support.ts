@@ -1,5 +1,9 @@
-import type { Action, GameState } from './state'
+import { splitEvenly } from './allocations'
+import type { Allocation, PortfolioRunState } from './portfolio-state'
+import type { RunLength } from './rules'
+import type { Action, GameState, OrderSide, PendingOrder } from './state'
 import { startRun, step } from './step'
+import { browseRoster, startPortfolioRun } from './stocks'
 
 /**
  * Helpers the engine's own tests share. A run is opened from an explicit seed rather than from a
@@ -52,4 +56,57 @@ export function npcShares(state: GameState, npcId: string): number {
 
 export function totalLotQty(state: GameState): number {
   return state.lots.reduce((sum, lot) => sum + lot.qty, 0)
+}
+
+/**
+ * Opens a portfolio run over the committed roster, from an explicit seed and an explicit number
+ * of evenly split companies. Both are named by the caller for the same reason an index run's seed
+ * is: a portfolio nobody wrote down is a failure nobody can reproduce.
+ */
+export function freshPortfolioRun(
+  seed: number,
+  holdingCount = 3,
+  runLength: RunLength = 'standard'
+): PortfolioRunState {
+  const browse = browseRoster(seed)
+  const picks: Allocation[] = browse
+    .slice(0, holdingCount)
+    .map((company) => ({ assetId: company.id, percent: 0 }))
+  return startPortfolioRun(seed, runLength, splitEvenly(picks))
+}
+
+export function tickPortfolio(state: PortfolioRunState, days: number): PortfolioRunState {
+  let next = state
+  for (let day = 0; day < days; day++) {
+    next = step(next, { type: 'TICK' })
+  }
+  return next
+}
+
+/**
+ * A market order as a test writes one: the company and the size can be read straight off a
+ * holding that the type checker only knows might be there, and the fields that came back
+ * undefined are dropped rather than passed on as explicit undefined.
+ */
+export interface TestOrder {
+  side: OrderSide
+  assetId?: string | undefined
+  amountUsd?: number | undefined
+  qty?: number | undefined
+}
+
+/** Places a market order on one company and lets it fill on the following tick. */
+export function orderAndFill(state: PortfolioRunState, order: TestOrder): PortfolioRunState {
+  const placed: Omit<PendingOrder, 'id'> = {
+    side: order.side,
+    orderType: 'market',
+    ...(order.assetId === undefined ? {} : { assetId: order.assetId }),
+    ...(order.amountUsd === undefined ? {} : { amountUsd: order.amountUsd }),
+    ...(order.qty === undefined ? {} : { qty: order.qty }),
+  }
+  return step(step(state, { type: 'PLACE_ORDER', order: placed }), { type: 'TICK' })
+}
+
+export function targetTotal(state: PortfolioRunState): number {
+  return state.holdings.reduce((sum, holding) => sum + holding.targetPct, 0)
 }

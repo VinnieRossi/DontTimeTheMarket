@@ -1,21 +1,21 @@
-import { FEE_BPS, LONG_TERM_DAYS, SHARE_EPSILON, TAX_LONG_RATE, TAX_SHORT_RATE } from './rules'
 import { currentPrice, elapsedDays } from './selectors'
 import type { GameState, Lot, PendingOrder, TradeLogEntry } from './state'
+import { consumeLots, feeFor, taxFor } from './trade-math'
 
 /** The cash a buy order of `percent` of the player's cash on hand would spend. */
-export function buyAmountForPercent(state: GameState, percent: number): number {
+export function buyAmountForPercent(state: { cash: number }, percent: number): number {
   return state.cash * (percent / 100)
 }
 
 /** The share count a sell order of `percent` of the player's position would close. */
-export function sellQtyForPercent(state: GameState, percent: number): number {
+export function sellQtyForPercent(state: { shares: number }, percent: number): number {
   return state.shares * (percent / 100)
 }
 
 /** A market buy of `amountUsd` worth of shares. Pure: it returns a new state and mutates nothing. */
 export function executeBuy(state: GameState, amountUsd: number): GameState {
   const price = currentPrice(state)
-  const fee = state.settings.fees ? amountUsd * (FEE_BPS / 10000) : 0
+  const fee = feeFor(amountUsd, state.settings)
   const spend = Math.min(amountUsd, state.cash)
   const net = spend - fee
   if (net <= 0) return state
@@ -35,55 +35,17 @@ export function executeBuy(state: GameState, amountUsd: number): GameState {
   }
 }
 
-interface LotConsumption {
-  remainingLots: Lot[]
-  shortGain: number
-  longGain: number
-}
-
-/**
- * Takes `qty` shares off the oldest lots first. FIFO is what decides the tax: a lot held longer
- * than a year is taxed at the long-term rate, so which shares are sold is not a bookkeeping
- * detail but the difference between two tax bills.
- */
-function consumeLots(state: GameState, qty: number, price: number): LotConsumption {
-  const remainingLots: Lot[] = []
-  let remaining = qty
-  let shortGain = 0
-  let longGain = 0
-
-  for (const lot of state.lots) {
-    if (remaining <= SHARE_EPSILON) {
-      remainingLots.push({ ...lot })
-      continue
-    }
-    const taken = Math.min(lot.qty, remaining)
-    const gain = (price - lot.cost) * taken
-    if (state.day - lot.day > LONG_TERM_DAYS) longGain += gain
-    else shortGain += gain
-    remaining -= taken
-    const left = lot.qty - taken
-    if (left > SHARE_EPSILON) remainingLots.push({ ...lot, qty: left })
-  }
-
-  return { remainingLots, shortGain, longGain }
-}
-
 /** A market sell of `qtyToSell` shares, taxed per lot by how long it was held. Pure. */
 export function executeSell(state: GameState, qtyToSell: number): GameState {
   const qty = Math.min(qtyToSell, state.shares)
   if (qty <= 0) return state
 
   const price = currentPrice(state)
-  const { remainingLots, shortGain, longGain } = consumeLots(state, qty, price)
+  const { remainingLots, shortGain, longGain } = consumeLots(state.lots, qty, price, state.day)
 
   const proceeds = qty * price
-  const fee = state.settings.fees ? proceeds * (FEE_BPS / 10000) : 0
-  let tax = 0
-  if (state.settings.tax) {
-    if (shortGain > 0) tax += shortGain * TAX_SHORT_RATE
-    if (longGain > 0) tax += longGain * TAX_LONG_RATE
-  }
+  const fee = feeFor(proceeds, state.settings)
+  const tax = taxFor(shortGain, longGain, state.settings)
 
   const logEntry: TradeLogEntry = { day: elapsedDays(state), price, side: 'sell' }
 
@@ -99,7 +61,11 @@ export function executeSell(state: GameState, qtyToSell: number): GameState {
   }
 }
 
-function triggers(order: PendingOrder, price: number): boolean {
+/**
+ * Whether an order fills at today's price. A market order always does on the tick after it was
+ * placed, which is the one-day settlement lag; the rest wait for the price to reach their target.
+ */
+export function triggers(order: PendingOrder, price: number): boolean {
   switch (order.orderType) {
     case 'market':
       return true

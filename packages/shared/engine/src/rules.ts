@@ -39,6 +39,29 @@ export const DIVIDEND_PERIOD_DAYS = 63
 /** Share quantities below this count as nothing left, which keeps float dust out of the lot list. */
 export const SHARE_EPSILON = 1e-9
 
+/**
+ * How far a holding has to sit from its target before a rebalance bothers trading it. Without a
+ * floor, every rebalance would place a dollar's worth of orders on every holding and charge the
+ * spread on each of them for no change anybody can see.
+ */
+export const REBALANCE_MIN_TRADE_USD = 1
+
+/**
+ * How far a holding's weight has to sit from its target before the screen offers a rebalance.
+ *
+ * It is a point of the portfolio rather than nothing, because a rebalance is never exact: it
+ * fills at the next day's prices and pays tax on whatever it sells, so a portfolio that has just
+ * been put back still sits a fraction off its targets. Offering a rebalance for that fraction
+ * would invite a player to churn toward a target they can never quite land on.
+ */
+export const REBALANCE_DRIFT_PCT = 1
+
+/** How many companies a portfolio may hold at once. */
+export const MAX_HOLDINGS = 12
+
+/** The step a holding's percent allocation moves in, sized for a thumb rather than a mouse. */
+export const ALLOCATION_STEP_PCT = 5
+
 export type Speed = 'paused' | '1x' | '4x' | '16x'
 
 export const SPEEDS: readonly Speed[] = ['paused', '1x', '4x', '16x']

@@ -1,8 +1,5 @@
-import { BOGLE_NPC_ID } from './npc'
 import { nextRandom, pickFrom } from './rng'
 import { COMMENT_CHANCE, COMMENT_INTERVAL_DAYS } from './rules'
-import { currentPrice, edgeBpsVs, elapsedDays } from './selectors'
-import type { GameState } from './state'
 
 /**
  * Which situation the player is in, keyed rather than written out, so the words live in
@@ -17,11 +14,33 @@ export const COMMENT_POOLS = {
 
 export type CommentCategory = keyof typeof COMMENT_POOLS
 
-export function pickCategory(state: GameState): CommentCategory {
-  const invested = state.shares * currentPrice(state)
-  if (state.tradeCount > elapsedDays(state) / 8 && state.tradeCount > 6) return 'overtrading'
-  if (invested < 1 && state.cash > 0) return 'sittingInCash'
-  return edgeBpsVs(state, BOGLE_NPC_ID) >= 0 ? 'winning' : 'losing'
+/**
+ * The reading of a run the commentary is chosen from, summarized to the four things any of the
+ * lines care about. It arrives as a summary rather than as a run, so one pool of lines covers
+ * index runs and portfolio runs without the choosing logic knowing which it is looking at.
+ */
+export interface CommentarySituation {
+  elapsedDays: number
+  tradeCount: number
+  /** What the player holds, at today's prices. Zero means they are entirely in cash. */
+  investedValue: number
+  cash: number
+  aheadOfBenchmark: boolean
+}
+
+export function pickCategory(situation: CommentarySituation): CommentCategory {
+  if (situation.tradeCount > situation.elapsedDays / 8 && situation.tradeCount > 6) {
+    return 'overtrading'
+  }
+  if (situation.investedValue < 1 && situation.cash > 0) return 'sittingInCash'
+  return situation.aheadOfBenchmark ? 'winning' : 'losing'
+}
+
+/** The fields a run has to carry for the commentary to be able to advance it. */
+export interface CommentaryHost {
+  rngState: number
+  lastCommentDay: number
+  commentaryKey: string | null
 }
 
 /**
@@ -29,17 +48,20 @@ export function pickCategory(state: GameState): CommentCategory {
  * state rather than calling `Math.random()`. Most ticks return the state unchanged by design:
  * the line should not change every single day.
  */
-export function maybeUpdateCommentary(state: GameState): GameState {
-  if (elapsedDays(state) - state.lastCommentDay < COMMENT_INTERVAL_DAYS) return state
+export function maybeUpdateCommentary<T extends CommentaryHost>(
+  state: T,
+  situation: CommentarySituation
+): T {
+  if (situation.elapsedDays - state.lastCommentDay < COMMENT_INTERVAL_DAYS) return state
 
   const roll = nextRandom(state.rngState)
   if (roll.value > COMMENT_CHANCE) return { ...state, rngState: roll.state }
 
-  const picked = pickFrom(roll.state, COMMENT_POOLS[pickCategory(state)])
+  const picked = pickFrom(roll.state, COMMENT_POOLS[pickCategory(situation)])
   return {
     ...state,
     rngState: picked.state,
-    lastCommentDay: elapsedDays(state),
+    lastCommentDay: situation.elapsedDays,
     commentaryKey: picked.value,
   }
 }

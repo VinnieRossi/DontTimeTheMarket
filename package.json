@@ -23,6 +23,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "bake-data": "tsx scripts/bake-data.ts",
+    "bake-stocks": "tsx scripts/bake-stocks.ts",
     "verify": "tsx scripts/verify.ts",
     "verify:staged": "tsx scripts/verify.ts --staged",
     "validate": "tsx scripts/run-validators.ts",

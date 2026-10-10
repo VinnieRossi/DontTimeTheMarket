@@ -84,7 +84,7 @@ describe('the figures beside the chart', () => {
   it('shows no readouts and the cleanest label until something is switched on', () => {
     const state = startRun(SEED, 'standard')
     expect(readoutsFor(state)).toEqual([])
-    expect(complexityFor(state)).toBe('Clean')
+    expect(complexityFor(readoutsFor(state))).toBe('Clean')
   })
 
   it('reports the readouts a player piled on, and says how cluttered that got', () => {
@@ -93,7 +93,7 @@ describe('the figures beside the chart', () => {
       state = step(state, { type: 'SET_INDICATOR', key, value: true })
     }
     expect(readoutsFor(state)).toHaveLength(6)
-    expect(complexityFor(state)).toBe('Overkill')
+    expect(complexityFor(readoutsFor(state))).toBe('Overkill')
   })
 
   it('says nothing at all when the engine has not picked a line', () => {

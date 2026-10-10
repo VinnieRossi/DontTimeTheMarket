@@ -5,4 +5,6 @@ export {
   formatPercent,
   formatShares,
   formatSignedPercent,
+  formatSignedPoints,
+  formatWholePercent,
 } from './format'

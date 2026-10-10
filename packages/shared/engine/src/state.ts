@@ -22,6 +22,11 @@ export interface PendingOrder {
   qty?: number
   /** For limit, stop, and take-profit orders: the trigger price. */
   targetPrice?: number
+  /**
+   * Which company the order is for, in a portfolio run. An index run holds one position and
+   * leaves this unset; a portfolio order without it has nothing to fill against and is dropped.
+   */
+  assetId?: string
 }
 
 export interface TradeLogEntry {
@@ -29,6 +34,8 @@ export interface TradeLogEntry {
   day: number
   price: number
   side: OrderSide
+  /** Which company was traded, in a portfolio run. */
+  assetId?: string
 }
 
 /**
@@ -65,6 +72,8 @@ export interface ValueHistoryEntry {
 export type GamePhase = 'running' | 'ended'
 
 export interface GameState {
+  /** Which kind of run this is, so one `step` can take either without inspecting its shape. */
+  mode: 'index'
   phase: GamePhase
   seed: number
   /**
@@ -108,3 +117,4 @@ export type Action =
   | { type: 'SET_INDICATOR'; key: keyof IndicatorToggles; value: boolean }
   | { type: 'CASH_OUT' }
   | { type: 'CONTINUE' }
+  | { type: 'REBALANCE' }

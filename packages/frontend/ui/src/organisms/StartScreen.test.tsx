@@ -57,4 +57,26 @@ describe('StartScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Start run' }))
     expect(onStart).toHaveBeenCalledTimes(1)
   })
+
+  it('offers no second way in until it is given one', () => {
+    renderScreen()
+    expect(screen.getAllByRole('button', { name: /run|year/ })).toHaveLength(3)
+  })
+
+  it('reports the other way into the game without starting this one', async () => {
+    const onSecondary = vi.fn()
+    const { onStart } = renderScreen({
+      secondaryLabel: 'Build a stock portfolio instead',
+      onSecondary,
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Build a stock portfolio instead' }))
+    expect(onSecondary).toHaveBeenCalledTimes(1)
+    expect(onStart).not.toHaveBeenCalled()
+  })
+
+  it('names the primary action after the run it opens', () => {
+    renderScreen({ startLabel: 'Start index run' })
+    expect(screen.getByRole('button', { name: 'Start index run' })).toBeVisible()
+  })
 })

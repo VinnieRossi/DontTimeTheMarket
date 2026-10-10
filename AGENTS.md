@@ -14,8 +14,9 @@ in `docs/adr/`.
 ## What this is
 
 A game about the gap between what trading feels like and what it returns. A player gets a
-randomized slice of real market history with the dates and the price level hidden, and is scored
-at the end against a benchmark that bought the index on day one and then did nothing.
+randomized slice of real market history with the dates and the price level hidden, either as the
+whole market or as a basket of disguised real companies they pick, and is scored at the end
+against a benchmark that bought the same thing on day one and then did nothing.
 
 The whole simulation is one pure function: `step(state, action)` reads no clock, no environment,
 and no random source, and every draw it needs advances a counter carried in the state. The same
