@@ -14,6 +14,8 @@ export interface FigureView {
   value: string
   /** Set only where the figure means a number went up or down. */
   direction?: 'up' | 'down'
+  /** A short factual line shown as subtext under the value, when the figure needs one. */
+  note?: string
 }
 
 export interface ActionView {

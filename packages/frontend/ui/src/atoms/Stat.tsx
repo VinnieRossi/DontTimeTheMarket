@@ -11,6 +11,8 @@ export interface StatProps {
   /** Colors the figure when it means a number went up or down, and never otherwise. */
   direction?: StatDirection
   align?: 'start' | 'end'
+  /** A short factual line shown as muted subtext under the value, when the figure needs one. */
+  note?: string
   className?: string | undefined
 }
 
@@ -21,6 +23,7 @@ export function Stat({
   surface = 'none',
   direction = 'none',
   align = 'start',
+  note,
   className,
 }: StatProps) {
   return (
@@ -42,6 +45,7 @@ export function Stat({
       >
         {value}
       </div>
+      {note !== undefined && <div className="app-stat__note app-text-muted">{note}</div>}
     </div>
   )
 }

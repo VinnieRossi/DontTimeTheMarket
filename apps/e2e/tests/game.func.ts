@@ -42,6 +42,21 @@ test('a run can be opened, traded, scored, and started again', async ({ page }) 
   await expect(page.getByText(/^[+-]\d+ bps$/), 'the run should end with a score').toBeVisible()
   await expect(page.getByRole('heading', { name: /Bogle NPC/ })).toBeVisible()
 
+  /*
+   * Index, S&P 500, Berkshire, and Nasdaq-100 NPCs each only appear in a run whose randomly drawn
+   * start day their own baked history covers, so a single run can show anywhere from none of them
+   * to all three. Rather than pin the test to one seed's outcome, this asserts the one invariant
+   * that holds regardless: whichever of the three appear are rendered with a real dollar value,
+   * never left as a blank or broken row.
+   */
+  for (const name of ['S&P 500 NPC', 'Nasdaq-100 NPC', 'Berkshire NPC']) {
+    const label = page.getByText(name, { exact: true })
+    if (await label.isVisible()) {
+      const tile = page.locator('.app-tile', { has: label })
+      await expect(tile.getByText(/^\$[\d,]+(\.\d{2})?$/)).toBeVisible()
+    }
+  }
+
   await page.getByRole('button', { name: 'Play a new run' }).click()
   await expect(page.getByRole('heading', { name: 'Think you can beat the market?' })).toBeVisible()
 })

@@ -1,3 +1,4 @@
+import { payExternalNpcDividends } from './external-npcs'
 import { assetIn, priceOf } from './portfolio-selectors'
 import type { AssetSeries, BasketNpcState, Holding, PortfolioRunState } from './portfolio-state'
 import { DIVIDEND_TAX_RATE } from './rules'
@@ -86,6 +87,9 @@ export function processDividends(state: PortfolioRunState): PortfolioRunState {
     npcs.push(paid)
   }
 
+  const externalNpcs = payExternalNpcDividends(state.externalNpcs, state.day, taxMultiplier)
+  if (externalNpcs !== state.externalNpcs) paidAnything = true
+
   if (!paidAnything) return state
-  return { ...state, cash, holdings, npcs }
+  return { ...state, cash, holdings, npcs, externalNpcs }
 }

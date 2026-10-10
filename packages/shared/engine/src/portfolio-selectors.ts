@@ -1,4 +1,5 @@
 import { InternalError } from '@dttm/types'
+import { externalNpcValue } from './external-npcs'
 import { SERIES_LENGTH } from './market-data'
 import type { AssetSeries, Holding, PortfolioRunState, UniverseAsset } from './portfolio-state'
 import { LONG_TERM_DAYS } from './rules'
@@ -56,12 +57,16 @@ export function portfolioValue(state: PortfolioRunState): number {
 
 export function npcValue(state: PortfolioRunState, npcId: string): number {
   const npc = state.npcs.find((candidate) => candidate.id === npcId)
-  if (npc === undefined) return 0
-  let value = npc.cash
-  for (const [assetId, shares] of Object.entries(npc.shares)) {
-    value += shares * priceOf(state, assetId)
+  if (npc !== undefined) {
+    let value = npc.cash
+    for (const [assetId, shares] of Object.entries(npc.shares)) {
+      value += shares * priceOf(state, assetId)
+    }
+    return value
   }
-  return value
+  const external = state.externalNpcs.find((candidate) => candidate.id === npcId)
+  if (external !== undefined) return externalNpcValue(external, state.day)
+  return 0
 }
 
 export function elapsedDays(state: PortfolioRunState): number {

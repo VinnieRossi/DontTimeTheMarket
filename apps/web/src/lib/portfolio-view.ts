@@ -8,6 +8,7 @@ import {
   type CapTier,
   type ChartPoint,
   type DisguisedCompany,
+  EXTERNAL_NPC_DEFINITIONS,
   type FundamentalTrends,
   holdingSparkline,
   holdingValue,
@@ -286,6 +287,22 @@ export function portfolioBenchmarkFigure(state: PortfolioRunState): FigureView {
   return { label: BENCHMARK_NAME, value: formatMoney(portfolioNpcValue(state, BOGLE_NPC_ID)) }
 }
 
+/**
+ * One figure per external benchmark NPC actually present in this run. A portfolio run always
+ * starts well after all three series exist, so in practice this is never empty, but it is read
+ * from the run rather than assumed, the same way the index-mode equivalent is.
+ */
+export function portfolioExternalNpcFigures(state: PortfolioRunState): FigureView[] {
+  const present = new Set(state.externalNpcs.map((npc) => npc.id))
+  return EXTERNAL_NPC_DEFINITIONS.filter((definition) => present.has(definition.id)).map(
+    (definition) => ({
+      label: definition.name,
+      value: formatMoney(portfolioNpcValue(state, definition.id)),
+      note: definition.note,
+    })
+  )
+}
+
 export function portfolioTiles(state: PortfolioRunState): readonly FigureView[] {
   const gap = portfolioRunningGapPctVs(state, BOGLE_NPC_ID)
   const count = state.holdings.length
@@ -297,6 +314,7 @@ export function portfolioTiles(state: PortfolioRunState): readonly FigureView[] 
       value: formatSignedPercent(gap),
       direction: gap >= 0 ? 'up' : 'down',
     },
+    ...portfolioExternalNpcFigures(state),
   ]
 }
 
@@ -391,16 +409,18 @@ export const REVEAL_NOTE =
 export function portfolioEndScreenView(state: PortfolioRunState) {
   const edge = portfolioEdgeBpsVs(state, BOGLE_NPC_ID)
   const won = edge >= 0
+  const view = endScreenCopy({
+    edge,
+    totalReturnPct: portfolioTotalReturnPct(state),
+    maxDrawdownPct: state.maxDrawdownPct,
+    tradeCount: state.tradeCount,
+    costs: state.taxPaid + state.feesPaid,
+    continueEnabled: won && portfolioHasRoomToContinue(state),
+    hasRoomToContinue: portfolioHasRoomToContinue(state),
+  })
   return {
-    ...endScreenCopy({
-      edge,
-      totalReturnPct: portfolioTotalReturnPct(state),
-      maxDrawdownPct: state.maxDrawdownPct,
-      tradeCount: state.tradeCount,
-      costs: state.taxPaid + state.feesPaid,
-      continueEnabled: won && portfolioHasRoomToContinue(state),
-      hasRoomToContinue: portfolioHasRoomToContinue(state),
-    }),
+    ...view,
+    scores: [...view.scores, ...portfolioExternalNpcFigures(state)],
     reveal: revealRows(state),
     revealNote: REVEAL_NOTE,
   }

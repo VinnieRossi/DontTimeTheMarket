@@ -294,6 +294,11 @@
   text-align: right;
 }
 
+.app-stat__note {
+  font-size: var(--app-text-2xs);
+  margin-top: var(--app-space-1);
+}
+
 .app-readout {
   display: inline-flex;
   align-items: center;

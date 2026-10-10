@@ -72,8 +72,18 @@ describe('the chart', () => {
 describe('the figures beside the chart', () => {
   it('opens with all the cash, no position, and no gap against the benchmark', () => {
     const tiles = tilesFor(startRun(SEED, 'standard'))
-    expect(tiles.map((tile) => tile.value)).toEqual(['$10,000', '0.00 sh ($0)', '+0.0%'])
+    expect(tiles.slice(0, 3).map((tile) => tile.value)).toEqual([
+      '$10,000',
+      '0.00 sh ($0)',
+      '+0.0%',
+    ])
     expect(tiles[2]?.direction).toBe('up')
+  })
+
+  it('appends a figure for every external benchmark NPC the start day has data for', () => {
+    const tiles = tilesFor(startRun(SEED, 'standard'))
+    expect(tiles.slice(3).map((tile) => tile.label)).toEqual(['S&P 500 NPC', 'Berkshire NPC'])
+    expect(tiles.slice(3).every((tile) => tile.note !== undefined)).toBe(true)
   })
 
   it('colors the gap red once the benchmark is ahead', () => {
@@ -197,13 +207,15 @@ describe('the scoreboard', () => {
     })
   })
 
-  it('reports the four figures a run is judged on', () => {
+  it('reports the four figures a run is judged on, plus one per external NPC this run has', () => {
     const view = endScreenView(ended())
     expect(view.scores.map((score) => score.label)).toEqual([
       'Total return',
       'Max drawdown',
       'Trades placed',
       'Tax + fees paid',
+      'S&P 500 NPC',
+      'Berkshire NPC',
     ])
     expect(view.scores[0]?.value).toMatch(/^-?\d+\.\d%$/)
     expect(view.scores[3]?.value.startsWith('$')).toBe(true)

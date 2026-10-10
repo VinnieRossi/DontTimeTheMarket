@@ -1,3 +1,4 @@
+import { externalNpcValue } from './external-npcs'
 import { closeAt, SERIES_LENGTH } from './market-data'
 import { BOGLE_NPC_ID } from './npc'
 import { LONG_TERM_DAYS } from './rules'
@@ -24,8 +25,10 @@ export function playerValue(state: GameState): number {
 
 export function npcValue(state: GameState, npcId: string): number {
   const npc = state.npcs.find((candidate) => candidate.id === npcId)
-  if (npc === undefined) return 0
-  return npc.cash + npc.shares * currentPrice(state)
+  if (npc !== undefined) return npc.cash + npc.shares * currentPrice(state)
+  const external = state.externalNpcs.find((candidate) => candidate.id === npcId)
+  if (external !== undefined) return externalNpcValue(external, state.day)
+  return 0
 }
 
 export function elapsedDays(state: GameState): number {

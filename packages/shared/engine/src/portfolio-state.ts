@@ -1,3 +1,4 @@
+import type { ExternalNpcState } from './external-npcs'
 import type { IndicatorToggles } from './indicators'
 import type { RunLength, Speed } from './rules'
 import type { RealismSettings } from './settings'
@@ -98,6 +99,8 @@ export interface PortfolioRunState {
   pending: readonly PendingOrder[]
   nextOrderId: number
   npcs: readonly BasketNpcState[]
+  /** Benchmark NPCs priced off their own real external series rather than a basket of holdings. */
+  externalNpcs: readonly ExternalNpcState[]
   settings: RealismSettings
   indicators: IndicatorToggles
   momentum: MomentumState

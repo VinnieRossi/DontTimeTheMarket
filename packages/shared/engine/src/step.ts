@@ -1,6 +1,11 @@
 import { assertNever } from '@dttm/utils'
 import { maybeUpdateCommentary } from './comments'
 import { processDividends } from './dividends'
+import {
+  createInitialExternalNpcs,
+  externalNpcValue,
+  payExternalNpcDividends,
+} from './external-npcs'
 import { DEFAULT_INDICATORS } from './indicators'
 import { processInterest } from './interest'
 import { closeAt, MAX_START_DAY, MIN_START_DAY, SERIES_LENGTH } from './market-data'
@@ -10,7 +15,13 @@ import { processPendingOrders } from './orders'
 import type { PortfolioRunState } from './portfolio-state'
 import { stepPortfolio } from './portfolio-step'
 import { nextInt } from './rng'
-import { MIN_SCORING_DAYS, RUN_LENGTH_DAYS, type RunLength, STARTING_CASH } from './rules'
+import {
+  DIVIDEND_TAX_RATE,
+  MIN_SCORING_DAYS,
+  RUN_LENGTH_DAYS,
+  type RunLength,
+  STARTING_CASH,
+} from './rules'
 import type { RunState } from './run-state'
 import { canContinue, currentPrice, edgeBpsVs, elapsedDays, playerValue } from './selectors'
 import { DEFAULT_SETTINGS } from './settings'
@@ -33,6 +44,7 @@ import { advanceDrawdown } from './trade-math'
 export function startRun(seed: number, runLength: RunLength): GameState {
   const draw = nextInt(seed, MAX_START_DAY - MIN_START_DAY)
   const startDay = MIN_START_DAY + draw.value
+  const externalNpcs = createInitialExternalNpcs(startDay)
 
   return {
     mode: 'index',
@@ -49,12 +61,22 @@ export function startRun(seed: number, runLength: RunLength): GameState {
     pending: [],
     nextOrderId: 1,
     npcs: createInitialNpcs(startDay),
+    externalNpcs,
     settings: DEFAULT_SETTINGS,
     indicators: DEFAULT_INDICATORS,
     momentum: EMPTY_MOMENTUM,
     tradeLog: [],
     valueHistory: [
-      { day: startDay, playerValue: STARTING_CASH, npcValues: { [BOGLE_NPC_ID]: STARTING_CASH } },
+      {
+        day: startDay,
+        playerValue: STARTING_CASH,
+        npcValues: {
+          [BOGLE_NPC_ID]: STARTING_CASH,
+          ...Object.fromEntries(
+            externalNpcs.map((npc) => [npc.id, externalNpcValue(npc, startDay)])
+          ),
+        },
+      },
     ],
     tradeCount: 0,
     taxPaid: 0,
@@ -73,6 +95,9 @@ function npcValues(state: GameState): Record<string, number> {
   for (const npc of state.npcs) {
     values[npc.id] = npc.cash + npc.shares * price
   }
+  for (const npc of state.externalNpcs) {
+    values[npc.id] = externalNpcValue(npc, state.day)
+  }
   return values
 }
 
@@ -88,6 +113,14 @@ function tick(state: GameState): GameState {
   let next: GameState = { ...state, day: state.day + 1 }
   next = processPendingOrders(next)
   next = processDividends(next)
+  next = {
+    ...next,
+    externalNpcs: payExternalNpcDividends(
+      next.externalNpcs,
+      next.day,
+      next.settings.tax ? 1 - DIVIDEND_TAX_RATE : 1
+    ),
+  }
   next = processInterest(next)
   next = updateMomentum(next)
 

@@ -18,6 +18,14 @@ export { COMMENT_COPY, commentaryText } from './comment-copy'
 export type { CommentarySituation, CommentCategory } from './comments'
 export { COMMENT_POOLS, maybeUpdateCommentary, pickCategory } from './comments'
 export { analystNote } from './disguise-copy'
+export type { ExternalNpcDefinition, ExternalNpcState, ExternalSeriesId } from './external-npcs'
+export {
+  createInitialExternalNpcs,
+  EXTERNAL_NPC_DEFINITIONS,
+  externalCloseAt,
+  externalNpcValue,
+  payExternalNpcDividends,
+} from './external-npcs'
 export type { IndicatorChip, IndicatorHost, IndicatorToggles } from './indicators'
 export {
   COMPLEXITY_LABELS,
