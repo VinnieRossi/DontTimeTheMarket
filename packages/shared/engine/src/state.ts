@@ -1,3 +1,4 @@
+import type { ExternalNpcState } from './external-npcs'
 import type { IndicatorToggles } from './indicators'
 import type { RunLength, Speed } from './rules'
 import type { RealismSettings } from './settings'
@@ -92,6 +93,8 @@ export interface GameState {
   pending: PendingOrder[]
   nextOrderId: number
   npcs: NpcState[]
+  /** Benchmark NPCs priced off their own real external series rather than the game's own index. */
+  externalNpcs: ExternalNpcState[]
   settings: RealismSettings
   indicators: IndicatorToggles
   momentum: MomentumState

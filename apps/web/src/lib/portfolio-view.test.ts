@@ -288,6 +288,9 @@ describe('the end of a portfolio run', () => {
       'Max drawdown',
       'Trades placed',
       'Tax + fees paid',
+      'S&P 500 NPC',
+      'Nasdaq-100 NPC',
+      'Berkshire NPC',
     ])
     expect(view.reveal).toHaveLength(3)
     for (const row of view.reveal) {

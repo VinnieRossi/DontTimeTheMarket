@@ -103,6 +103,7 @@ export function GameScreen({
             label={tile.label}
             value={tile.value}
             {...(tile.direction === undefined ? {} : { direction: tile.direction })}
+            {...(tile.note === undefined ? {} : { note: tile.note })}
           />
         ))}
       </div>

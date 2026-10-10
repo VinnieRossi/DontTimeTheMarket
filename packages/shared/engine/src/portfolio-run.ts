@@ -1,4 +1,5 @@
 import { disguiseRoster } from './disguise'
+import { createInitialExternalNpcs, externalNpcValue } from './external-npcs'
 import { DEFAULT_INDICATORS } from './indicators'
 import { SERIES_LENGTH } from './market-data'
 import { EMPTY_MOMENTUM } from './momentum'
@@ -120,6 +121,8 @@ export function startPortfolioRun(
   const draw = nextInt(seed, ceiling - floor)
   const startDay = floor + draw.value
 
+  const externalNpcs = createInitialExternalNpcs(startDay)
+
   const chosen = cleanAllocations(allocations, roster)
   const holdings: Holding[] = []
   const npcShares: Record<string, number> = {}
@@ -162,6 +165,7 @@ export function startPortfolioRun(
         shares: npcShares,
       },
     ],
+    externalNpcs,
     settings: DEFAULT_SETTINGS,
     indicators: DEFAULT_INDICATORS,
     momentum: EMPTY_MOMENTUM,
@@ -170,7 +174,12 @@ export function startPortfolioRun(
       {
         day: startDay,
         playerValue: STARTING_CASH,
-        npcValues: { [BOGLE_NPC_ID]: STARTING_CASH },
+        npcValues: {
+          [BOGLE_NPC_ID]: STARTING_CASH,
+          ...Object.fromEntries(
+            externalNpcs.map((npc) => [npc.id, externalNpcValue(npc, startDay)])
+          ),
+        },
       },
     ],
     tradeCount: 0,

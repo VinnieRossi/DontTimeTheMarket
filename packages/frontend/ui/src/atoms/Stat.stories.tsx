@@ -33,3 +33,11 @@ export const Down: Story = {
 export const Aligned: Story = {
   args: { align: 'end', label: 'Bogle NPC', value: '$10,980' },
 }
+export const WithNote: Story = {
+  args: {
+    surface: 'tile',
+    label: 'Berkshire NPC',
+    value: '$12,300',
+    note: 'Tracks Berkshire Hathaway (BRK.A), the holding company run by Warren Buffett.',
+  },
+}

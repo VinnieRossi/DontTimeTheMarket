@@ -1,5 +1,6 @@
 import { InternalError } from '@dttm/types'
 import { describe, expect, it } from 'vitest'
+import { externalCloseAt } from './external-npcs'
 import { SERIES_LENGTH } from './market-data'
 import { BOGLE_NPC_ID } from './npc'
 import {
@@ -129,6 +130,28 @@ describe('scoring a portfolio run', () => {
   it('reports no gap against a benchmark that is not in the run', () => {
     const run = freshPortfolioRun(SEED, 2)
     expect(runningGapPctVs(run, 'nobody')).toBe(0)
+  })
+})
+
+describe('the external benchmark NPCs', () => {
+  it('starts all three fully invested, since a portfolio run always opens after 1999', () => {
+    const run = freshPortfolioRun(SEED, 3)
+    expect(run.externalNpcs.map((npc) => npc.id).sort()).toEqual([
+      'berkshire',
+      'nasdaq100',
+      'sp500',
+    ])
+    expect(npcValue(run, 'sp500')).toBeCloseTo(STARTING_CASH, 6)
+    expect(npcValue(run, 'nasdaq100')).toBeCloseTo(STARTING_CASH, 6)
+    expect(npcValue(run, 'berkshire')).toBeCloseTo(STARTING_CASH, 6)
+  })
+
+  it('values an external NPC through the same generalized selector the basket benchmark uses', () => {
+    const run = tickPortfolio(freshPortfolioRun(SEED, 3), 40)
+    const npc = run.externalNpcs.find((candidate) => candidate.id === 'sp500')
+    if (npc === undefined) throw new Error('expected the S&P 500 NPC')
+    const price = externalCloseAt('sp500', run.day)
+    expect(npcValue(run, 'sp500')).toBeCloseTo(npc.cash + npc.shares * (price ?? 0), 6)
   })
 })
 

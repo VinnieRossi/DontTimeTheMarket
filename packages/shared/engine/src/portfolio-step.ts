@@ -1,5 +1,6 @@
 import { assertNever } from '@dttm/utils'
 import { maybeUpdateCommentary } from './comments'
+import { externalNpcValue } from './external-npcs'
 import { processInterest } from './interest'
 import { SERIES_LENGTH } from './market-data'
 import { advanceMomentum } from './momentum'
@@ -33,6 +34,9 @@ function npcValues(state: PortfolioRunState): Record<string, number> {
   const values: Record<string, number> = {}
   for (const npc of state.npcs) {
     values[npc.id] = npcValue(state, npc.id)
+  }
+  for (const npc of state.externalNpcs) {
+    values[npc.id] = externalNpcValue(npc, state.day)
   }
   return values
 }

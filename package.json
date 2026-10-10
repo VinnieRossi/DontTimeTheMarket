@@ -24,6 +24,7 @@
     "format": "biome format --write .",
     "bake-data": "tsx scripts/bake-data.ts",
     "bake-stocks": "tsx scripts/bake-stocks.ts",
+    "bake-npc-series": "tsx scripts/bake-npc-series.ts",
     "verify": "tsx scripts/verify.ts",
     "verify:staged": "tsx scripts/verify.ts --staged",
     "validate": "tsx scripts/run-validators.ts",

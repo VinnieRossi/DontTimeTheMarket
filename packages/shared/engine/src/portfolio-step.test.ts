@@ -292,6 +292,15 @@ describe('income', () => {
     expect(npc?.shares[first?.assetId ?? '']).toBeGreaterThan(0)
   })
 
+  it('reinvests the external NPCs’ real dividends too, compounding their share counts', () => {
+    const opened = freshPortfolioRun(SEED, 3)
+    const sp500AtOpen = opened.externalNpcs.find((npc) => npc.id === 'sp500')?.shares ?? 0
+    const run = tickPortfolio(opened, 400)
+    const sp500After = run.externalNpcs.find((npc) => npc.id === 'sp500')?.shares ?? 0
+    expect(sp500After).toBeGreaterThan(sp500AtOpen)
+    expect(run.externalNpcs.every((npc) => npc.cash === 0)).toBe(true)
+  })
+
   it('earns interest on idle cash, and nothing when the switch is off', () => {
     const run = tickPortfolio(freshPortfolioRun(SEED, 2), 5)
     const holding = run.holdings[0]

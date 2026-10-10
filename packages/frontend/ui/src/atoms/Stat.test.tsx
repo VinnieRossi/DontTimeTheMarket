@@ -35,4 +35,14 @@ describe('Stat', () => {
     const { container } = render(<Stat align="end" label="Bogle NPC" value="$10,980" />)
     expect(container.firstElementChild?.className).toContain('app-stat--end')
   })
+
+  it('shows a note under the value when one is given', () => {
+    render(<Stat label="Berkshire NPC" value="$12,300" note="Tracks Berkshire Hathaway." />)
+    expect(screen.getByText('Tracks Berkshire Hathaway.')).toBeVisible()
+  })
+
+  it('renders nothing extra when no note is given', () => {
+    const { container } = render(<Stat label="Cash" value="$1" />)
+    expect(container.querySelector('.app-stat__note')).toBeNull()
+  })
 })

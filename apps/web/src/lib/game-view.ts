@@ -6,6 +6,7 @@ import {
   commentaryText,
   complexityLabel,
   currentPrice,
+  EXTERNAL_NPC_DEFINITIONS,
   edgeBpsVs,
   elapsedDays,
   type GameState,
@@ -159,6 +160,22 @@ export function benchmarkFigure(state: GameState): FigureView {
   return { label: BENCHMARK_NAME, value: formatMoney(npcValue(state, BOGLE_NPC_ID)) }
 }
 
+/**
+ * One figure per external benchmark NPC actually present in this run, naturally empty for a run
+ * whose start day predates all three of them. Each carries its one-line factual note as subtext,
+ * which is the only place a person's name (Buffett, in Berkshire's case) may appear.
+ */
+export function externalNpcFigures(state: GameState): FigureView[] {
+  const present = new Set(state.externalNpcs.map((npc) => npc.id))
+  return EXTERNAL_NPC_DEFINITIONS.filter((definition) => present.has(definition.id)).map(
+    (definition) => ({
+      label: definition.name,
+      value: formatMoney(npcValue(state, definition.id)),
+      note: definition.note,
+    })
+  )
+}
+
 export function tilesFor(state: GameState): readonly FigureView[] {
   const gap = runningGapPctVs(state, BOGLE_NPC_ID)
   const position = state.shares * currentPrice(state)
@@ -173,6 +190,7 @@ export function tilesFor(state: GameState): readonly FigureView[] {
       value: formatSignedPercent(gap),
       direction: gap >= 0 ? 'up' : 'down',
     },
+    ...externalNpcFigures(state),
   ]
 }
 
@@ -287,7 +305,7 @@ export function endScreenCopy(outcome: RunOutcome): EndScreenView {
 }
 
 export function endScreenView(state: GameState): EndScreenView {
-  return endScreenCopy({
+  const view = endScreenCopy({
     edge: edgeBpsVs(state, BOGLE_NPC_ID),
     totalReturnPct: totalReturnPct(state),
     maxDrawdownPct: state.maxDrawdownPct,
@@ -296,6 +314,7 @@ export function endScreenView(state: GameState): EndScreenView {
     continueEnabled: canContinue(state),
     hasRoomToContinue: hasRoomToContinue(state),
   })
+  return { ...view, scores: [...view.scores, ...externalNpcFigures(state)] }
 }
 
 export const START_SCREEN_COPY = {

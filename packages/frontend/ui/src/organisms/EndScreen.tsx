@@ -52,6 +52,7 @@ export function EndScreen({
             label={score.label}
             value={score.value}
             {...(score.direction === undefined ? {} : { direction: score.direction })}
+            {...(score.note === undefined ? {} : { note: score.note })}
           />
         ))}
       </div>
